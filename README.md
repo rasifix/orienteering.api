@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rasifix/orienteering.api.svg?branch=master)](https://travis-ci.org/rasifix/orienteering.api)
+
 # orienteering.api
 API server for orienteering competitions. The current implementation is focussed on single races and not suited for relays, 
 team orienteering and other special forms of orienteering. The result data is retrieved from o-l.ch (SOLV - swiss orienteering) and 
