@@ -32,6 +32,11 @@ app.get('/*', function(req, res) {
   res.redirect('/api/events');
 });
 
+app.use(function(err, req, res, next) {
+  res.status(500);
+  res.render('error', { error: err });
+});
+
 var server = app.listen(3000, function() {
   var host = server.address().address;
   var port = server.address().port;

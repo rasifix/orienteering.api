@@ -27,7 +27,7 @@ module.exports.parseRanking = function(json) {
       runners: []
     };
   });
-  
+    
   result.runners = json.runners.map(function(runner) {
     return {
       id: runner.id,
@@ -71,6 +71,11 @@ module.exports.parseRanking = function(json) {
   result.runners.forEach(function(runner) {
     runner.splits.forEach(function(split, idx) {
       if (split.split !== '-') {
+        if (result.legs.length <= idx) {
+          console.log('more splits than legs?! ' + result.legs.length + ' <= ' + idx);
+          console.log(runner.fullName + ' ' + json.name);
+          return;
+        }
         result.legs[idx].runners.push({
           id: runner.id,
           fullName: runner.fullName,
@@ -136,8 +141,11 @@ module.exports.parseRanking = function(json) {
   // calculate how much time a runner lost on a leg
   result.runners.forEach(function(runner) {
     runner.splits.forEach(function(split, idx) {
-      split.splitBehind = split.split === '-' || split.split === 's' ? '-' : formatTime(parseTime(split.split) - result.legs[idx].fastestSplit);
+      if (idx >= result.legs.length) {
+        return;
+      }
       
+      split.splitBehind = split.split === '-' || split.split === 's' ? '-' : formatTime(parseTime(split.split) - result.legs[idx].fastestSplit);      
       
       // performance index for runner leg
       if (split.split !== '-' && split.split !== 's') {
@@ -242,6 +250,10 @@ module.exports.parseRanking = function(json) {
   result.runners.forEach(function(runner) {
     // calculate overall time behind leader
     runner.splits.forEach(function(split, splitIdx) {
+      if (splitIdx >= result.legs.length) {
+        return;
+      }
+      
       if (!invalidTime(split.time)) {
         var leader = result.runners.map(function(r) {
           return {

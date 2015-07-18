@@ -1,6 +1,7 @@
 var request = require('request');
 var parse = require('csv-parse');
 var iconv = require('iconv');
+var reformatTime = require('../../services/time.js').reformatTime;
 
 module.exports = function(req, res) {
   var id = req.params.id;
@@ -80,41 +81,3 @@ module.exports = function(req, res) {
     res.json(result);
   });
 };
-
-function reformatTime(str) {
-  // normalize missing punch time
-  if (str === '-' || str === '-----') {
-    return '-';
-  }
-  
-  // "special" total times (like wrong or missing control)
-  if (str.indexOf(':') === -1) {
-    return str;
-  }
-  
-  var splits = str.split(':');
-  var seconds;
-  
-  if (splits.length === 3) {
-    seconds = parseInt(splits[0], 10) * 3600 + parseInt(splits[1], 10) * 60 + parseInt(sanitize(splits[2]), 10);
-  } else if (splits.length === 2) {
-    seconds = parseInt(splits[0], 10) * 60 + parseInt(sanitize(splits[1]), 10);
-  } else {
-    seconds = 0;
-  }
-  
-  return Math.floor(seconds / 60) + ':' + pad(seconds % 60);
-}
-
-function pad(value) {
-  return value < 10 ? '0' + value : '' + value
-}
-    
-function sanitize(value) {
-  var comma = value.indexOf(',');
-  if (comma != -1) {
-    return value.substring(0, comma);
-  } else {
-    return value;
-  }
-}

@@ -25,7 +25,7 @@ module.exports.reformatTime = function(str) {
     seconds = 0;
   }
   
-  return Math.floor(seconds / 60) + ':' + pad(seconds % 60);
+  return module.exports.formatTime(seconds);
 }
 
 var regex = /(-)?[0-9]?[0-9]:[0-9][0-9](:[0-9][0-9])?/;
@@ -54,6 +54,9 @@ module.exports.parseTime = function(str) {
 
 module.exports.formatTime = function(seconds) {
   if (seconds >= 0) {
+    if (seconds >= 3600) {
+      return Math.floor(seconds / 3600) + ":" + pad(Math.floor(seconds / 60) % 60) + ":" + pad(seconds % 60);
+    }
     return Math.floor(seconds / 60) + ":" + pad(seconds % 60);
   } else {
     return "-" + Math.floor(-seconds / 60) + ":" + pad(-seconds % 60);
