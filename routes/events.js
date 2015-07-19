@@ -2,7 +2,6 @@ var request = require('request');
 
 module.exports = function(req, res) {
   var year = parseInt(req.query.year) || new Date().getFullYear();
-  
   request({ 
     url:'http://o-l.ch/cgi-bin/fixtures', 
     qs: {
@@ -11,7 +10,14 @@ module.exports = function(req, res) {
       json: 1
     }
   }, function(error, response, body) {
-    var events = JSON.parse(body.replace(/\t/g, ' '))['ResultLists'].filter(function(entry) { 
+    if (response.statusCode !== 200) {
+      res.status(500);
+      res.json({ error: 'backend server reported a problem' });
+      return;
+    }
+    
+    var json = JSON.parse(body.replace(/\t/g, ' '));    
+    var events = json['ResultLists'].filter(function(entry) { 
       return entry['EventMap']; 
     }).filter(function(entry) { 
       return entry['ResultType'] === 0; 
