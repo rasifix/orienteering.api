@@ -40,6 +40,7 @@ describe('Events', function() {
       request(app)
         .get('/api/events')
         .set('Connection', 'keep-alive')
+        .set('Accept-Encoding', 'gzip')
         .expect('Content-Type', /json/)
         .expect(200)
         .expect({
@@ -51,7 +52,8 @@ describe('Events', function() {
               'subtitle': 'Dummy',
               'map': 'Grammet-Limperg',
               'club': 'OLG Kakowa',
-              'source': 'solv'
+              'source': 'solv',
+              '_link': 'http://ol.zimaa.ch/api/events/solv/3263'
             },
             {
               'id': 3260,
@@ -59,7 +61,8 @@ describe('Events', function() {
               'date': '2015-01-03',
               'map': 'Bernau',
               'club': 'Ski-O Swiss',
-              'source': 'solv'
+              'source': 'solv',
+              '_link': 'http://ol.zimaa.ch/api/events/solv/3260'
             }
           ]
         }, done);

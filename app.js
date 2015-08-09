@@ -3,6 +3,7 @@ var request = require('request');
 var compress = require('compression');
 
 var app = express();
+app.use(compress());
 
 app.get('/api/events', require('./routes/events'));
 
@@ -33,7 +34,6 @@ app.get('/*', function(req, res) {
   res.redirect('/api/events');
 });
 
-app.use(compress());
 app.use(function(err, req, res, next) {
   res.status(500);
   res.render('error', { error: err });

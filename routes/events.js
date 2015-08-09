@@ -29,7 +29,7 @@ module.exports = function(req, res) {
         map: entry['EventMap'],
         club: entry['EventClub'],
         source: 'solv',
-        _link: req.protocol + '://' + req.get('host') + '/api/events/solv/' + entry['ResultListID']
+        _link: 'http://ol.zimaa.ch/api/events/solv/' + entry['ResultListID']
       }
       if (entry['SubTitle']) {
         row.subtitle = entry['SubTitle'];
