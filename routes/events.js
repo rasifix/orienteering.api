@@ -42,7 +42,7 @@ module.exports = function(req, res) {
     });
     
     res.set('Access-Control-Allow-Origin', '*');
-    res.set('Cache-Control: max-age=60');
+    res.set('Cache-Control', 'max-age=60');
     res.json({ events:events });
   });
 }
