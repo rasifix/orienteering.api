@@ -28,7 +28,8 @@ module.exports = function(req, res) {
         date: entry['EventDate'],
         map: entry['EventMap'],
         club: entry['EventClub'],
-        source: 'solv'
+        source: 'solv',
+        _link: req.protocol + '://' + req.get('host') + '/api/events/solv/' + entry['ResultListID']
       }
       if (entry['SubTitle']) {
         row.subtitle = entry['SubTitle'];
