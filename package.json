@@ -26,6 +26,7 @@
     "mocha": "~2.2.5",
     "should": "~7.0.2",
     "supertest": "~1.0.1",
-    "nock": "~2.7.0"
+    "nock": "~2.7.0",
+    "compression": "~1.5.2"
   }
 }

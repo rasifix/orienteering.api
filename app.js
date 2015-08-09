@@ -1,5 +1,6 @@
 var express = require('express');
 var request = require('request');
+var compress = require('compression');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.get('/*', function(req, res) {
   res.redirect('/api/events');
 });
 
+app.use(compress());
 app.use(function(err, req, res, next) {
   res.status(500);
   res.render('error', { error: err });
