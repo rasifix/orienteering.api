@@ -53,7 +53,6 @@ module.exports.parseRanking = function(json) {
         
         if (parseTime(splitTime) < 0) {
           console.log('bad boy!!! @ ' + idx);
-          console.log('  ' + split.time + ' => ' + runner.splits[idx - 1].time);
           console.log(runner.fullName);
         }
         
