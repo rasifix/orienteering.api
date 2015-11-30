@@ -17,8 +17,11 @@ var express = require('express');
 var request = require('request');
 var compress = require('compression');
 
+var bodyParser = require('body-parser');
+
 var app = express();
-app.use(compress());
+app.use(bodyParser.json());
+//app.use(compress());
 
 app.get('/api/events', require('./routes/events'));
 
@@ -44,6 +47,10 @@ app.get('/api/events/solv/:id/runners', require('./routes/solv/runners'));
 
 app.get('/api/events/solv/:id/starttime', require('./routes/solv/starttime'));
 
+app.get('/api/events/zimaa/:id', require('./routes/zimaa/event').get);
+
+app.put('/api/events/zimaa/:id', require('./routes/zimaa/event').put);
+
 // fallback route -> send to entry point
 app.get('/*', function(req, res) {
   res.redirect('/api/events');
@@ -51,7 +58,7 @@ app.get('/*', function(req, res) {
 
 app.use(function(err, req, res, next) {
   res.status(500);
-  res.render('error', { error: err });
+  res.json({ error: err });
 });
 
 module.exports = app;
