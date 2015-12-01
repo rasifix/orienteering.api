@@ -17,6 +17,7 @@ var express = require('express');
 var request = require('request');
 var compress = require('compression');
 var bodyParser = require('body-parser');
+var basicAuth = require('basic-auth');
 
 var solv = require('./services/solv-loader');
 var local = require('./services/local-loader');
@@ -76,7 +77,30 @@ app.get('/api/events/local/:id/starttime', require('./routes/solv/starttime')(lo
 
 app.get('/api/events/:id', require('./routes/local/event'));
 
-app.put('/api/events/:id', bodyParser.text(), require('./routes/local/upload'));
+
+
+var auth = function (req, res, next) {
+  function unauthorized(res) {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    return res.send(401);
+  };
+
+  var user = basicAuth(req);
+
+  if (!user || !user.name || !user.pass) {
+    return unauthorized(res);
+  };
+  
+  var args = process.argv.slice(2);
+  
+  if (user.name === (args[0] || 'fluffy') && user.pass === (args[1] || 'stuffy')) {
+    return next();
+  } else {
+    return unauthorized(res);
+  };
+};
+
+app.put('/api/events/:id', auth, bodyParser.text(), require('./routes/local/upload'));
 
 
 
