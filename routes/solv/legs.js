@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var solv = require('../../services/solv-loader');
 var parseTime = require('../../services/time').parseTime;
 var formatTime = require('../../services/time').formatTime;
 var parseRanking = require('../../services/ranking').parseRanking;
 
-module.exports = function(req, res) {
-  var id = req.params.id;
-  solv(id, function(event) {
-    var legs = defineLegs(event.categories);
+module.exports = function(loader) {
+  return function(req, res) {
+    var id = req.params.id;
+    loader(id, function(event) {
+      var legs = defineLegs(event.categories);
     
-    res.set('Access-Control-Allow-Origin', '*');
-    res.json(legs);
-  });
+      res.set('Access-Control-Allow-Origin', '*');
+      res.json(legs);
+    });
+  };
 };
 
 function defineLegs(categories) {

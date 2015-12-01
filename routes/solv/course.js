@@ -15,34 +15,35 @@
  */
 require('array.prototype.find');
 
-var solv = require('../../services/solv-loader');
 var parseRanking = require('../../services/ranking').parseRanking;
 var parseTime = require('../../services/time').parseTime;
 
-module.exports = function(req, res) {
-  var id = req.params.id;
-  var courseId = req.params.courseId;
+module.exports = function(loader) {
+  return function(req, res) {
+    var id = req.params.id;
+    var courseId = req.params.courseId;
   
-  solv(id, function(event) {      
-    var courses = defineCourses(event.categories);
-    var course = courses.find(function(course) {
-      return course.id === courseId;
-    });
-    res.set('Access-Control-Allow-Origin', '*');
-        
-    if (!course) {
-      res.status(404);
-      res.json({ message: 'course ' + courseId + ' does not exist!' });
-    } else {
-      res.json({
-        name: course.name,
-        distance: course.distance,
-        ascent: course.ascent,
-        controls: course.controls,
-        runners: parseRanking(course).runners
+    loader(id, function(event) {      
+      var courses = defineCourses(event.categories);
+      var course = courses.find(function(course) {
+        return course.id === courseId;
       });
-    }    
-  });
+      res.set('Access-Control-Allow-Origin', '*');
+        
+      if (!course) {
+        res.status(404);
+        res.json({ message: 'course ' + courseId + ' does not exist!' });
+      } else {
+        res.json({
+          name: course.name,
+          distance: course.distance,
+          ascent: course.ascent,
+          controls: course.controls,
+          runners: parseRanking(course).runners
+        });
+      }    
+    });
+  };
 };
 
 function defineCourses(categories) {

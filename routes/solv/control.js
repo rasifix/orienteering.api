@@ -20,21 +20,23 @@ var parseTime = require('../../services/time').parseTime;
 var formatTime = require('../../services/time').formatTime;
 var parseRanking = require('../../services/ranking').parseRanking;
 
-module.exports = function(req, res) {  
-  var id = req.params.id;
-  var controlId = req.params.controlId;
-  solv(id, function(event) {
-    var control = defineControl(event.categories, controlId);
+module.exports = function(loader) {
+  return function(req, res) {  
+    var id = req.params.id;
+    var controlId = req.params.controlId;
+    loader(id, function(event) {
+      var control = defineControl(event.categories, controlId);
 
-    res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Origin', '*');
     
-    if (!control) {
-      res.status(404);
-      res.json({ message: 'control ' + controlId + ' does not exist!' });
-    } else {
-      res.json(control);
-    }
-  });
+      if (!control) {
+        res.status(404);
+        res.json({ message: 'control ' + controlId + ' does not exist!' });
+      } else {
+        res.json(control);
+      }
+    });
+  };
 };
 
 function defineControl(categories, id) {

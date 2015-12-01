@@ -15,31 +15,32 @@
  */
 require('array.prototype.find');
 
-var solv = require('../../services/solv-loader');
 var parseRanking = require('../../services/ranking').parseRanking;
 var parseTime = require('../../services/time').parseTime;
 var formatTime = require('../../services/time').formatTime;
 
-module.exports = function(req, res) {
-  var id = req.params.id;
-  var legId = req.params.legId;
+module.exports = function(loader) {
+  return function(req, res) {
+    var id = req.params.id;
+    var legId = req.params.legId;
   
-  solv(id, function(event) {      
-    var legs = defineLegs(event.categories);
+    loader(id, function(event) {      
+      var legs = defineLegs(event.categories);
     
-    var leg = legs.find(function(leg) {
-      return leg.id === legId;
+      var leg = legs.find(function(leg) {
+        return leg.id === legId;
+      });
+    
+      res.set('Access-Control-Allow-Origin', '*');
+    
+      if (!leg) {
+        res.status(404);
+        res.json({ message: 'leg ' + legId + ' does not exist!' });
+      } else {
+        res.json(leg);
+      }    
     });
-    
-    res.set('Access-Control-Allow-Origin', '*');
-    
-    if (!leg) {
-      res.status(404);
-      res.json({ message: 'leg ' + legId + ' does not exist!' });
-    } else {
-      res.json(leg);
-    }    
-  });
+  };
 };
 
 function defineLegs(categories) {

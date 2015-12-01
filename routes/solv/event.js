@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var solv = require('../../services/solv-loader');
 
-module.exports = function(req, res) {
-  solv(req.params.id, function(event) {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.json(event);
-  });  
+module.exports = function(loader) {
+  return function(req, res) {
+    loader(req.params.id, function(event) {
+      res.set('Access-Control-Allow-Origin', '*');
+      res.json(event);
+    });  
+  }
 };

@@ -16,40 +16,69 @@
 var express = require('express');
 var request = require('request');
 var compress = require('compression');
-
 var bodyParser = require('body-parser');
 
+var solv = require('./services/solv-loader');
+var local = require('./services/local-loader');
+
 var app = express();
-app.use(bodyParser.json());
-//app.use(compress());
+app.use(compress());
 
 app.get('/api/events', require('./routes/events'));
 
-app.get('/api/events/solv/:id', require('./routes/solv/event'));
+app.get('/api/events/solv/:id', require('./routes/solv/event')(solv));
 
-app.get('/api/events/solv/:id/categories', require('./routes/solv/categories'));
+app.get('/api/events/solv/:id/categories', require('./routes/solv/categories')(solv));
 
-app.get('/api/events/solv/:id/categories/:categoryId', require('./routes/solv/category'));
+app.get('/api/events/solv/:id/categories/:categoryId', require('./routes/solv/category')(solv));
 
-app.get('/api/events/solv/:id/courses', require('./routes/solv/courses'));
+app.get('/api/events/solv/:id/courses', require('./routes/solv/courses')(solv));
 
-app.get('/api/events/solv/:id/courses/:courseId', require('./routes/solv/course'));
+app.get('/api/events/solv/:id/courses/:courseId', require('./routes/solv/course')(solv));
 
-app.get('/api/events/solv/:id/legs', require('./routes/solv/legs'));
+app.get('/api/events/solv/:id/legs', require('./routes/solv/legs')(solv));
 
-app.get('/api/events/solv/:id/legs/:legId', require('./routes/solv/leg'));
+app.get('/api/events/solv/:id/legs/:legId', require('./routes/solv/leg')(solv));
 
-app.get('/api/events/solv/:id/controls', require('./routes/solv/controls'));
+app.get('/api/events/solv/:id/controls', require('./routes/solv/controls')(solv));
 
-app.get('/api/events/solv/:id/controls/:controlId', require('./routes/solv/control'));
+app.get('/api/events/solv/:id/controls/:controlId', require('./routes/solv/control')(solv));
 
-app.get('/api/events/solv/:id/runners', require('./routes/solv/runners'));
+app.get('/api/events/solv/:id/runners', require('./routes/solv/runners')(solv));
 
-app.get('/api/events/solv/:id/starttime', require('./routes/solv/starttime'));
+app.get('/api/events/solv/:id/starttime', require('./routes/solv/starttime')(solv));
 
-app.get('/api/events/zimaa/:id', require('./routes/zimaa/event').get);
 
-app.put('/api/events/zimaa/:id', require('./routes/zimaa/event').put);
+
+app.get('/api/events/local/:id', require('./routes/solv/event')(local));
+
+app.get('/api/events/local/:id/categories', require('./routes/solv/categories')(local));
+
+app.get('/api/events/local/:id/categories/:categoryId', require('./routes/solv/category')(local));
+
+app.get('/api/events/local/:id/courses', require('./routes/solv/courses')(local));
+
+app.get('/api/events/local/:id/courses/:courseId', require('./routes/solv/course')(local));
+
+app.get('/api/events/local/:id/legs', require('./routes/solv/legs')(local));
+
+app.get('/api/events/local/:id/legs/:legId', require('./routes/solv/leg')(local));
+
+app.get('/api/events/local/:id/controls', require('./routes/solv/controls')(local));
+
+app.get('/api/events/local/:id/controls/:controlId', require('./routes/solv/control')(local));
+
+app.get('/api/events/local/:id/runners', require('./routes/solv/runners')(local));
+
+app.get('/api/events/local/:id/starttime', require('./routes/solv/starttime')(local));
+
+
+
+app.get('/api/events/:id', require('./routes/local/event'));
+
+app.put('/api/events/:id', bodyParser.text(), require('./routes/local/upload'));
+
+
 
 // fallback route -> send to entry point
 app.get('/*', function(req, res) {

@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var solv = require('../../services/solv-loader');
 
-module.exports = function(req, res) {
-  var id = req.params.id;
+module.exports = function(loader) {
+  return function(req, res) {
+    var id = req.params.id;
   
-  solv(id, function(event) {      
-    var result = defineRunners(event.categories);
+    loader(id, function(event) {      
+      var result = defineRunners(event.categories);
     
-    res.set('Access-Control-Allow-Origin', '*');
-    res.json(result);
-  });
+      res.set('Access-Control-Allow-Origin', '*');
+      res.json(result);
+    });
+  };
 };
 
 function defineRunners(categories) {

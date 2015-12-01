@@ -17,37 +17,22 @@ var fs = require("fs");
 
 var sanitize = require("sanitize-filename");
 
-var iconv = require('iconv');
-var reformatTime = require('../../services/time').reformatTime;
-var parseTime = require('../../services/time').parseTime;
-
-module.exports.get = function(req, res) {
+module.exports = function(req, res) {
   var id = req.params.id;
   var file = sanitize(id);
   
   res.set('Access-Control-Allow-Origin', '*');
   
-  /*fs.readdir('services', function(err, files) {
-    res.json(files);
-  });*/
-  
-  fs.readFile('data/' + file + ".json", { encoding: 'UTF8' }, function(err, data) {
-    if (err) throw err;
-    res.json(JSON.parse(data));
-  });
+  var path = 'data/' + file + '.csv';
+  fs.access(path, fs.R_OK, function (err) {
+    fs.readFile(path, { encoding: 'UTF8' }, function(err, data) {
+      if (err) {
+        res.status(404);
+        res.json({ message: 'event ' + id + ' does not exist!' });
+      } else {
+        res.set('Content-Type', 'text/plain;charset=utf8');
+        res.send(data);
+      }
+    });
+  });  
 };
-
-module.exports.put = function(req, res) {  
-  var id = req.params.id;
-  var file = sanitize(id);
-
-  fs.writeFile('data/' + file + '.json', JSON.stringify(req.body), function(err) {
-    if (err) {
-      res.statusCode = 500;
-      res.json(err);
-    } else {
-      res.json({ message: 'upload successful!' });
-    }
-  });
-}
-
