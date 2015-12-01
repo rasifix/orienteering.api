@@ -24,23 +24,14 @@ module.exports = function(req, res) {
   res.set('Access-Control-Allow-Origin', '*');
   
   var path = 'data/' + file + '.csv';
-  fs.access(path, fs.R_OK, function (err) {
-    if (err) {
-      console.log('cannot read ' + path);
-      console.log(err);
-      return;
-    }
     
-    fs.readFile(path, { encoding: 'UTF8' }, function(err, data) {
-      if (err) {
-        console.log(err);
-        res.status(404);
-        res.json({ message: 'event ' + id + ' does not exist!' });
-      } else {
-        console.log(data);
-        res.set('Content-Type', 'text/plain;charset=utf8');
-        res.send(data);
-      }
-    });
+  fs.readFile(path, { encoding: 'UTF8' }, function(err, data) {
+    if (err) {
+      res.status(404);
+      res.json({ message: 'event ' + id + ' does not exist!' });
+    } else {
+      res.set('Content-Type', 'text/plain;charset=utf8');
+      res.send(data);
+    }
   });  
 };
