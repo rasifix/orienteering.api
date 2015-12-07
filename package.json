@@ -12,7 +12,7 @@
     "API"
   ],
   "author": "Simon Räss",
-  "license": "BSD-2-Clause",
+  "license": "Apache-2.0",
   "dependencies": {
     "express": "~4.12.4",
     "request": "~2.57.0",
