@@ -23,6 +23,9 @@ Array.prototype.flatMap = function(lambda) {
 
 module.exports = function(req, res) {
   var id = req.params.id;
+
+  console.log('received new activity with id = ' + id);
+  console.log(req.body);
     
   var lines = req.body.split(/[\r\n]+/g);
   var header = lines.splice(0, 1)[0].split(';');
@@ -87,6 +90,7 @@ module.exports = function(req, res) {
     
   fs.writeFile('data/' + file + '.csv', result, 'utf8', function(err) {
     if (err) {
+      console.log('failed to write file ' + file + '.csv; error = ' + err);
       res.statusCode = 500;
       res.json(err);
     } else {

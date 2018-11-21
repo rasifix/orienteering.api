@@ -111,6 +111,8 @@ app.get('/*', function(req, res) {
 
 app.use(function(err, req, res, next) {
   res.status(500);
+  console.log('got a nasty error');
+  console.log(error);
   res.json({ error: err });
 });
 
