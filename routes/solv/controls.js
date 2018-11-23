@@ -109,7 +109,7 @@ function defineControls(categories) {
     control.cats = control.categories.map(function(cat) { return cat.name; }).join(',');
     result.push(control);
   });
-  result = result.filter(function(c) { return c.errorFrequency > 0; }).sort(function(c1, c2) {
+  result = result.sort(function(c1, c2) {
     return c2.errorFrequency - c1.errorFrequency;
   });
   
