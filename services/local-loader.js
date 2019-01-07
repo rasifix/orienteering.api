@@ -25,7 +25,7 @@ module.exports = function(id, callback) {
       let customResponse = {
         statusMessage: 404,
         message: 'a competition with this ' + id + 'does not exist'
-      }
+      };
       callback(customResponse);
       return;
     }
