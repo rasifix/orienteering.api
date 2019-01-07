@@ -22,12 +22,12 @@ module.exports = function(id, callback) {
     url: 'http://localhost:3000/api/events/' + id
   }, function(error, response, body) {
     if (response.statusCode === 404) {
-      response.statusCode = 404;
-      response.json({
-        statusCode: 404,
-        message: 'event with id ' + id + ' does not exist'
-      });
-      return;
+      let customResponse = {
+        statusCode : 404,
+        message : 'event with id ' + id + ' does not exist'
+      };
+      callback(customResponse);
+      return; 
     }
     
     // hack to fix invalid encoding from SOLV server
