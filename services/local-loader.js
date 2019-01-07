@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 var request = require('request');
-var iconv = require('iconv');
 var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 

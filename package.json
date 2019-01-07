@@ -14,17 +14,18 @@
   "author": "Simon Räss",
   "license": "Apache-2.0",
   "dependencies": {
-    "express": "~4.12.4",
-    "request": "~2.57.0",
+    "array-filter": "~1.0.0",
+    "array.prototype.find": "~1.0.0",
+    "basic-auth": "~1.0.3",
+    "body-parser": "~1.14.1",
+    "compression": "~1.5.2",
     "csv": "~0.4.2",
     "csv-parse": "~0.1.2",
-    "iconv": "~2.1.8",
-    "array.prototype.find": "~1.0.0",
-    "array-filter": "~1.0.0",
-    "body-parser": "~1.14.1",
-    "sanitize-filename": "~1.5.3",
-    "basic-auth": "~1.0.3",
-    "compression": "~1.5.2"
+    "express": "~4.12.4",
+    "nan": "^2.12.1",
+    "node-gyp": "^3.8.0",
+    "request": "~2.57.0",
+    "sanitize-filename": "~1.5.3"
   },
   "devDependencies": {
     "mocha": "~2.2.5",
