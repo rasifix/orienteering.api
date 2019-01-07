@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 var request = require('request');
-var iconv = require('iconv');
 var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 
@@ -23,16 +22,13 @@ module.exports = function(id, callback) {
     url: 'http://localhost:3000/api/events/' + id
   }, function(error, response, body) {
     if (response.statusCode === 404) {
-      response.statusCode = 404;
-      response.json({
-        statusCode: 404,
-        message: 'event with id ' + id + ' does not exist'
-      });
+      var customResponse = {
+        statusMessage: 404,
+        message: 'a competition with this ' + id + 'does not exist'
+      };
+      callback(customResponse);
       return;
     }
-    
-    // hack to fix invalid encoding from SOLV server
-    var converted = body;
     
     // convert CSV to JSON
     var categories = { };
