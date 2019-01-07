@@ -31,11 +31,11 @@ module.exports = function(id, callback) {
   }, function(error, response, body) {
     // interpret unknown event - SOLV does not properly do that for us...
     if (response.statusCode === 404 || body.substring(0, 14) === '<!DOCTYPE html') {
-      let customReponse = {
+      let customResponse = {
         statusMessage: 404,
         message: 'a competition with this ' + id + 'does not exist'
       }
-      callback(customReponse);
+      callback(customResponse);
       return;
     }
     
