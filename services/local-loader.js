@@ -22,7 +22,7 @@ module.exports = function(id, callback) {
     url: 'http://localhost:3000/api/events/' + id
   }, function(error, response, body) {
     if (response.statusCode === 404) {
-      let customResponse = {
+      var customResponse = {
         statusMessage: 404,
         message: 'a competition with this ' + id + 'does not exist'
       };
