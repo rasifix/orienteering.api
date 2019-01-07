@@ -18,7 +18,6 @@
     "request": "~2.57.0",
     "csv": "~0.4.2",
     "csv-parse": "~0.1.2",
-    "iconv": "~2.1.8",
     "array.prototype.find": "~1.0.0",
     "array-filter": "~1.0.0",
     "body-parser": "~1.14.1",
