@@ -18,16 +18,15 @@ var iconv = require('iconv');
 var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 
-module.exports = function(id, callback) {
+module.exports = function(id, callback, errorCallback) {
   request({
     url: 'http://localhost:3000/api/events/' + id
   }, function(error, response, body) {
     if (response.statusCode === 404) {
-      response.statusCode = 404;
-      response.json({
+      errorCallback({ 
         statusCode: 404,
         message: 'event with id ' + id + ' does not exist'
-      });
+      })
       return;
     }
     

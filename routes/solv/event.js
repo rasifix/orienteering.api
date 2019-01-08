@@ -18,6 +18,9 @@ module.exports = function(loader) {
   return function(req, res) {
     loader(req.params.id, function(event) {
       res.json(event);
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });  
   }
 };
