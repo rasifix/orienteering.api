@@ -18,19 +18,19 @@
     "array-filter": "~1.0.0",
     "array.prototype.find": "~1.0.0",
     "basic-auth": "~1.0.3",
-    "body-parser": "^1.14.2",
-    "compression": "~1.5.2",
+    "body-parser": "^1.18.3",
+    "compression": "^1.7.3",
     "csv": "~0.4.2",
     "csv-parse": "~0.1.2",
-    "express": "~4.12.4",
+    "express": "^4.16.4",
     "iconv": "^2.3.1",
-    "request": "~2.57.0",
+    "request": "^2.88.0",
     "sanitize-filename": "~1.5.3"
   },
   "devDependencies": {
-    "mocha": "~2.2.5",
+    "mocha": "^5.2.0",
+    "nock": "^10.0.6",
     "should": "~7.0.2",
-    "supertest": "~1.0.1",
-    "nock": "~2.7.0"
+    "supertest": "^3.3.0"
   }
 }
