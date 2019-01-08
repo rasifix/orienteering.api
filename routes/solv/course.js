@@ -28,7 +28,6 @@ module.exports = function(loader) {
       var course = courses.find(function(course) {
         return course.id === courseId;
       });
-      res.set('Access-Control-Allow-Origin', '*');
         
       if (!course) {
         res.status(404);

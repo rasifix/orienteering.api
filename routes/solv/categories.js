@@ -19,9 +19,7 @@ module.exports = function(loader) {
   return function(req, res) {
     var id = req.params.id;
   
-    loader(id, function(event) {      
-      var categories = { };
-    
+    loader(id, function(event) {
       var result = event.categories.map(function(category) {
         return {
           name: category.name,
@@ -32,7 +30,6 @@ module.exports = function(loader) {
         }
       });
     
-      res.set('Access-Control-Allow-Origin', '*');
       res.json(result);
     });
   };

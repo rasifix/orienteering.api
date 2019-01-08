@@ -49,7 +49,6 @@ module.exports = function(loader) {
         });
       });
     
-      res.set('Access-Control-Allow-Origin', '*');
       res.json(result);
     });
   };

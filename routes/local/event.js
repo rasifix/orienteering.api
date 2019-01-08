@@ -23,7 +23,7 @@ module.exports = function(req, res) {
   
   res.set('Access-Control-Allow-Origin', '*');
   
-  var path = 'data/' + file + '.csv';
+  var path = 'data/' + file + '.json';
     
   fs.readFile(path, { encoding: 'UTF8' }, function(err, data) {
     if (err) {

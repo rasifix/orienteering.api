@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 var express = require('express');
-var request = require('request');
 var compress = require('compression');
 var bodyParser = require('body-parser');
 var basicAuth = require('basic-auth');
@@ -24,6 +23,13 @@ var local = require('./services/local-loader');
 
 var app = express();
 app.use(compress());
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
+  next();
+});
 
 app.get('/api/events', require('./routes/events'));
 
@@ -100,7 +106,7 @@ var auth = function (req, res, next) {
   };
 };
 
-app.put('/api/events/:id', auth, bodyParser.text(), require('./routes/local/upload'));
+app.put('/api/events/:id', auth, bodyParser.json({limit: '50mb'}), require('./routes/local/upload'));
 
 
 

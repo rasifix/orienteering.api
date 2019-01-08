@@ -26,8 +26,6 @@ module.exports = function(loader) {
     var controlId = req.params.controlId;
     loader(id, function(event) {
       var control = defineControl(event.categories, controlId);
-
-      res.set('Access-Control-Allow-Origin', '*');
     
       if (!control) {
         res.status(404);

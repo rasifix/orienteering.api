@@ -30,9 +30,7 @@ module.exports = function(loader) {
       var leg = legs.find(function(leg) {
         return leg.id === legId;
       });
-    
-      res.set('Access-Control-Allow-Origin', '*');
-    
+        
       if (!leg) {
         res.status(404);
         res.json({ message: 'leg ' + legId + ' does not exist!' });

@@ -13,88 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-var fs = require("fs");
-var sanitize = require("sanitize-filename");
+const fs = require("fs");
+const sanitize = require("sanitize-filename");
 
 Array.prototype.flatMap = function(lambda) { 
   return Array.prototype.concat.apply([], this.map(lambda)); 
 };
 
 module.exports = function(req, res) {
-  var id = req.params.id;
+  const id = req.params.id;
+  const contentType = req.headers['content-type'];
 
   console.log('received new activity with id = ' + id);
-  console.log(req.body);
-    
-  var lines = req.body.split(/[\r\n]+/g);
-  var header = lines.splice(0, 1)[0].split(';');
-  var eventInfo = lines.splice(0, 1)[0].split(';');
+  console.log('content-type: ' + contentType);
+  console.log('content-lenght: ' + req.headers['content-lenght']);
+  console.log('body', req.body);
   
-  var category = null;
-  var categories = [];
-  lines.forEach(function(line, idx) {
-    if (line.length === 0) {
-      return;
-    }
-    var tokens = line.split(';');
-    if (tokens.length === 4) {
-      category = {
-        name: tokens[0],
-        distance: +tokens[1],
-        ascent: +tokens[2],
-        controls: +tokens[3],
-        runners: []
-      };
-      categories.push(category);
-      
-    } else {
-      var runner = {
-        rank: tokens[0],
-        name: tokens[1],
-        firstName: tokens[2],
-        yearOfBirth: tokens[3],
-        sex: tokens[4],
-        zip: tokens[6],
-        city: tokens[7],
-        club: tokens[8],
-        nation: tokens[9],
-        runTime: tokens[12],
-        startTime: tokens[13],
-        finishTime: tokens[14],
-        splits: []
-      };
-      for (var i = 15; i < tokens.length; i += 2) {
-        runner.splits.push({
-          code: tokens[i],
-          time: tokens[i + 1]
-        });
-      }
-      category.runners.push(runner);
-    }
-  });
-    
-  var result = 'Kategorie;Laenge;Steigung;PoAnz;Rang;Name;Jahrgang;Ort;Club;Zeit;SiNr;SolvNr;Startzeit;Zielzeit;Zwischenzeiten\n';
-  categories.forEach(function(category) {
-    var mapped = category.runners.map(function(runner) {
-      return category.name + ';' + category.distance / 1000 + ';' + category.ascent + ';' + category.controls + ';'
-           + runner.rank + ';' + (runner.firstName + ' ' + runner.name) + ';' + runner.yearOfBirth + ';' + runner.city + ';'
-           + runner.club + ';' + runner.runTime + ';' + runner.startTime + ';' + runner.finishTime + ';'
-           + runner.splits.map(function(split) { return split.code + ';' + split.time }).join(';');
+  if (contentType.indexOf('application/json') === -1) {
+    console.log('invalid content type received: ' + contentType);
+    res.statusCode = 406;
+    res.json({
+      'message': 'content-type ' + contentType + ' not supported; supported content types are application/json'
     });
-      
-    result += mapped.join('\n') + '\n';      
-  });
+    return;
+  }
 
-  var file = sanitize(id);
-    
-  fs.writeFile('data/' + file + '.csv', result, 'utf8', function(err) {
+  const file = sanitize(id);
+  console.log('saving to ' + file);
+
+  fs.writeFile('data/' + file + '.json', JSON.stringify(req.body, null, '  '), 'utf8', function(err) {
     if (err) {
-      console.log('failed to write file ' + file + '.csv; error = ' + err);
+      console.log('failed to write file ' + file + '.json; error = ' + err);
       res.statusCode = 500;
       res.json(err);
     } else {
-      res.json({ message: 'upload successful!' });
+      res.json({ message: 'upload of ' + id + ' successful!' });
     }
   });
   

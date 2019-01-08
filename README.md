@@ -47,3 +47,9 @@ control details for particular control of event
 ## /api/events/solv/:id/runners
 list of runners per event
 
+
+# Local Store
+The local store is implemented as a file store with the following folder structure:
+
+${eventId}/splits.json
+${eventId}/gps/${runnerId}.gpx

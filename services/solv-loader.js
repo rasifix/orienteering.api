@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 var request = require('request');
-var iconv = require('iconv');
 var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 
@@ -39,11 +38,6 @@ module.exports = function(id, callback) {
       });
       return;
     }
-    
-    // hack to fix invalid encoding from SOLV server
-    var buffer = new Buffer(body, 'binary');
-    var conv = new iconv.Iconv('windows-1252', 'utf8');
-    var converted = conv.convert(body).toString();
     
     // convert CSV to JSON
     var categories = { };

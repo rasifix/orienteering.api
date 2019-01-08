@@ -20,7 +20,6 @@ module.exports = function(loader) {
     loader(id, function(event) {
       var courses = defineCourses(event.categories);
     
-      res.set('Access-Control-Allow-Origin', '*');
       res.json(courses);
     });
   };

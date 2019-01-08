@@ -17,7 +17,6 @@
 module.exports = function(loader) {
   return function(req, res) {
     loader(req.params.id, function(event) {
-      res.set('Access-Control-Allow-Origin', '*');
       res.json(event);
     });  
   }

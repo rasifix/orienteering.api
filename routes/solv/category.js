@@ -26,9 +26,7 @@ module.exports = function(loader) {
       var category = event.categories.find(function(category) {
         return category.name === categoryId;
       });
-    
-      res.set('Access-Control-Allow-Origin', '*');
-    
+        
       if (!category) {
         res.status(404);
         res.json({ message: 'category ' + categoryId + ' does not exist!' });

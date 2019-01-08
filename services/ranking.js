@@ -35,6 +35,7 @@ module.exports.parseRanking = function(json) {
   };
 
   // define the legs
+  // note: this won't work if there are "unfair" courses
   result.legs = json.runners[0].splits.map(function(split, idx, splits) {
     var from = idx === 0 ? 'St' : splits[idx - 1].code;
     return {
@@ -46,6 +47,7 @@ module.exports.parseRanking = function(json) {
   result.runners = json.runners.map(function(runner) {
     return {
       id: runner.id,
+      // runners have only a fullname in the interface!
       fullName: runner.fullName,
       time: runner.time,
       yearOfBirth: runner.yearOfBirth,
@@ -67,8 +69,7 @@ module.exports.parseRanking = function(json) {
         }
         
         if (parseTime(splitTime) < 0) {
-          console.log('bad boy!!! @ ' + idx);
-          console.log(runner.fullName);
+          console.log(runner.fullName + ' has invalid split time at index ' + idx);
         }
         
         return {
@@ -86,10 +87,11 @@ module.exports.parseRanking = function(json) {
     runner.splits.forEach(function(split, idx) {
       if (split.split !== '-') {
         if (result.legs.length <= idx) {
-          console.log('more splits than legs?! ' + result.legs.length + ' <= ' + idx);
-          console.log(runner.fullName + ' ' + json.name);
+          console.log('more splits than legs on runner ' + runner.fullName + '! ' + result.legs.length + ' <= ' + idx);
           return;
         }
+
+        // NOTE: this doesn't work on non reorganized data
         result.legs[idx].runners.push({
           id: runner.id,
           fullName: runner.fullName,
@@ -156,9 +158,11 @@ module.exports.parseRanking = function(json) {
   result.runners.forEach(function(runner) {
     runner.splits.forEach(function(split, idx) {
       if (idx >= result.legs.length) {
+        // why would this happen?
         return;
       }
       
+      // NOTE: index based access does not work for unfair legs
       split.splitBehind = split.split === '-' || split.split === 's' ? '-' : formatTime(parseTime(split.split) - result.legs[idx].fastestSplit);      
       
       // performance index for runner leg
@@ -269,6 +273,7 @@ module.exports.parseRanking = function(json) {
       }
       
       if (!invalidTime(split.time)) {
+        console.log(result.runners);
         var leader = result.runners.map(function(r) {
           return {
             time: r.splits[splitIdx].time,

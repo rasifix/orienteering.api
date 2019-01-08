@@ -23,7 +23,6 @@ module.exports = function(loader) {
     loader(id, function(event) {
       var legs = defineControls(event.categories);
     
-      res.set('Access-Control-Allow-Origin', '*');
       res.json(legs);
     });
   };
