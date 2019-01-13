@@ -273,7 +273,6 @@ module.exports.parseRanking = function(json) {
       }
       
       if (!invalidTime(split.time)) {
-        console.log(result.runners);
         var leader = result.runners.map(function(r) {
           return {
             time: r.splits[splitIdx].time,
