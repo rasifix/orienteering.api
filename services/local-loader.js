@@ -30,6 +30,13 @@ module.exports = function(id, callback, errorCallback) {
       return;
     }
     
-    callback(JSON.parse(body));
+    var sequence = 1;
+    var json = JSON.parse(body);
+    json.categories.forEach(category => {
+      category.runners.forEach(runner => {
+        runner.id = runner.id || sequence++;
+      });
+    });
+    callback(json);
   });
 }

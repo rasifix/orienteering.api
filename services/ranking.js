@@ -47,7 +47,7 @@ module.exports.parseRanking = function(json) {
   var sequence = 1;
   result.runners = json.runners.map(function(runner) {
     return {
-      id: sequence++,
+      id: runner.id || sequence++,
       // runners have only a fullname in the interface!
       fullName: runner.fullName,
       time: runner.time,
