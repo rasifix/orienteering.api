@@ -32,8 +32,8 @@ module.exports = function(id, callback, errorCallback) {
     
     var sequence = 1;
     var json = JSON.parse(body);
-    json.categories.forEach(category => {
-      category.runners.forEach(runner => {
+    json.categories.forEach(function(category) {
+      category.runners.forEach(function(runner) {
         runner.id = runner.id || sequence++;
       });
     });
