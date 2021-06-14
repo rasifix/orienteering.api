@@ -15,15 +15,13 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@rasifix/orienteering-utils": "^1.0.3",
-    "array-filter": "~1.0.0",
-    "array.prototype.find": "~1.0.0",
     "basic-auth": "~1.0.3",
     "body-parser": "^1.18.3",
     "compression": "^1.7.3",
     "csv": "~0.4.2",
     "csv-parse": "~0.1.2",
     "express": "^4.16.4",
-    "iconv": "^2.3.1",
+    "iconv": "^3.0.0",
     "request": "^2.88.0",
     "sanitize-filename": "~1.5.3"
   },

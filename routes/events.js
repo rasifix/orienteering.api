@@ -18,7 +18,7 @@ var request = require('request');
 module.exports = function(req, res) {
   var year = parseInt(req.query.year) || new Date().getFullYear();
   request({ 
-    url:'http://o-l.ch/cgi-bin/fixtures', 
+    url:'https://o-l.ch/cgi-bin/fixtures', 
     qs: {
       mode: 'results',
       year: year,

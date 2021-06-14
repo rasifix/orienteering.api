@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-require('array.prototype.find');
-
 var parseRanking = require('../../services/ranking').parseRanking;
 var parseTime = require('../../services/time').parseTime;
 var formatTime = require('../../services/time').formatTime;
