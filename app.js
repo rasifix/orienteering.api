@@ -33,6 +33,8 @@ app.use(function(req, res, next) {
 
 app.get('/api/events', require('./routes/events'));
 
+app.get('/api/extendedEvents', require('./routes/extendedEvents'));
+
 app.get('/api/events/solv/:id', require('./routes/solv/event')(solv));
 
 app.get('/api/events/solv/:id/categories', require('./routes/solv/categories')(solv));
@@ -96,9 +98,9 @@ var auth = function (req, res, next) {
   if (!user || !user.name || !user.pass) {
     return unauthorized(res);
   };
-  
+
   var args = process.argv.slice(2);
-  
+
   if (user.name === (args[0] || 'fluffy') && user.pass === (args[1] || 'stuffy')) {
     return next();
   } else {
