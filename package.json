@@ -20,7 +20,7 @@
     "compression": "^1.7.3",
     "csv": "~0.4.2",
     "csv-parse": "~0.1.2",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "iconv": "^3.0.0",
     "request": "^2.88.0",
     "sanitize-filename": "~1.5.3"
