@@ -13,51 +13,91 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var request = require('request');
+var axios = require("axios");
+const localLoader = require("../services/local-loader");
 
-module.exports = function(req, res) {
-  var year = parseInt(req.query.year) || new Date().getFullYear();
-  request({ 
-    url:'https://o-l.ch/cgi-bin/fixtures', 
-    qs: {
-      mode: 'results',
-      year: year,
-      json: 1
-    }
-  }, function(error, response, body) {
-    if (response.statusCode !== 200) {
-      res.status(500);
-      res.json({ error: 'backend server reported a problem' });
-      return;
-    }
-    
-    var json = JSON.parse(body.replace(/\t/g, ' '));    
-    var events = json['ResultLists'].filter(function(entry) { 
-      return entry['EventMap']; 
-    }).filter(function(entry) { 
-      return entry['ResultType'] === 0; 
-    }).map(function(entry) {
-      var row = {
-        id: entry['ResultListID'],
-        name: entry['EventName'],
-        date: entry['EventDate'],
-        map: entry['EventMap'],
-        club: entry['EventClub'],
-        source: 'solv',
-        _link: 'http://ol.zimaa.ch/api/events/solv/' + entry['ResultListID']
+function solvEvents(year) {
+  return axios
+    .get("https://o-l.ch/cgi-bin/fixtures", {
+      params: {
+        mode: "results",
+        year: year,
+        json: 1,
+      },
+    })
+    .then(function (response) {
+      if (response.status !== 200) {
+        res.status(500);
+        res.json({ error: "backend server reported a problem" });
+        return;
       }
-      if (entry['SubTitle']) {
-        row.subtitle = entry['SubTitle'];
-      }
-      return row;
+
+      var json = response.data;
+      return json["ResultLists"]
+        .filter(function (entry) {
+          return entry["EventMap"];
+        })
+        .filter(function (entry) {
+          return entry["ResultType"] === 0;
+        })
+        .map(function (entry) {
+          var row = {
+            id: entry["ResultListID"],
+            name: entry["EventName"],
+            date: entry["EventDate"],
+            map: entry["EventMap"],
+            club: entry["EventClub"],
+            source: "solv",
+            _link:
+              "http://ol.zimaa.ch/api/events/solv/" + entry["ResultListID"],
+          };
+          if (entry["SubTitle"]) {
+            row.subtitle = entry["SubTitle"];
+          }
+          return row;
+        });
     });
-    
-    events.sort(function(e1, e2) {
+}
+
+function picoEvents() {
+  return axios
+    .get("https://results.picoevents.ch/api/liveevents4.php")
+    .then(function (response) {
+      if (response.status !== 200) {
+        res.status(500);
+        res.json({ error: "backend server reported a problem" });
+        return;
+      }
+
+      var json = response.data;
+
+      return json.liveevents
+        .map(function (entry) {
+          return {
+            id: entry.folder,
+            name: entry.name,
+            date: entry.date,
+            map: entry.map,
+            club: entry.organizer,
+            source: "picoevents",
+            _link:
+              "http://ol.zimaa.ch/api/events/picoevents/" + entry.folder,
+          };
+        });
+    });
+}
+
+
+module.exports = function (req, res) {
+  var year = parseInt(req.query.year) || new Date().getFullYear();
+  Promise.all([solvEvents(year), picoEvents()]).then(function (resolved) {
+    const events = [].concat(resolved[0]).concat(resolved[1]).concat(resolved[2]);
+    events.sort(function (e1, e2) {
       return e2.date.localeCompare(e1.date);
     });
-    
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Cache-Control', 'max-age=60');
-    res.json({ events:events });
+
+    res.set("Access-Control-Allow-Origin", "*");
+    res.set("Cache-Control", "max-age=60");
+    res.json({ events: events });
   });
-}
+};

@@ -13,74 +13,86 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var should = require('should'); 
-var assert = require('assert');
-var request = require('supertest');  
+var should = require("should");
+var assert = require("assert");
 var nock = require('nock');
+var request = require("supertest");
 
-var app = require('../app');
+var app = require("../app");
 
-describe('Events', function() {
-  
-  describe('Test', function() {    
-    it('should return proper event list', function(done) {  
-      var n = nock('http://o-l.ch').get('/cgi-bin/fixtures').query(true).reply(200, {
-          'ResultLists' : [
-             {
-              'UniqueID'  : 0,
-              'EventDate' : '2015-01-03',
-              'EventName' : 'Ski-O Meeting lang',
-              'EventCity' : 'Bernau',
-              'EventMap'  : 'Bernau',
-              'EventClub' : 'Ski-O Swiss',
-              'SubTitle'  : '',
-              'ResultListID'  : 3260,
-              'ResultType'    : 0,
-              'ResultModTime' : '20150103T151819'
-            }, {
-              'UniqueID'  : 7496,
-              'EventDate' : '2015-01-04',
-              'EventName' : 'Kakowa Winter-OL',
-              'EventCity' : 'Lausen',
-              'EventMap'  : 'Grammet-Limperg',
-              'EventClub' : 'OLG Kakowa',
-              'SubTitle'  : 'Dummy',
-              'ResultListID'  : 3263,
-              'ResultType'    : 0,
-              'ResultModTime' : '20150104T165326'
-            }
-          ]
-      });
-
-      request(app)
-        .get('/api/events')
-        .set('Connection', 'keep-alive')
-        .set('Accept-Encoding', 'gzip')
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .expect({
-          'events': [
+describe("Events", function () {
+  describe("Test", function () {
+    it("should return proper event list", function (done) {
+      nock("https://o-l.ch/")
+        .get("/cgi-bin/fixtures?mode=results&year=2025&json=1")
+        .reply(200, {
+          ResultLists: [
             {
-              'id': 3263,
-              'name': 'Kakowa Winter-OL',
-              'date': '2015-01-04',
-              'subtitle': 'Dummy',
-              'map': 'Grammet-Limperg',
-              'club': 'OLG Kakowa',
-              'source': 'solv',
-              '_link': 'http://ol.zimaa.ch/api/events/solv/3263'
+              UniqueID: 0,
+              EventDate: "2015-01-03",
+              EventName: "Ski-O Meeting lang",
+              EventCity: "Bernau",
+              EventMap: "Bernau",
+              EventClub: "Ski-O Swiss",
+              SubTitle: "",
+              ResultListID: 3260,
+              ResultType: 0,
+              ResultModTime: "20150103T151819",
             },
             {
-              'id': 3260,
-              'name': 'Ski-O Meeting lang',
-              'date': '2015-01-03',
-              'map': 'Bernau',
-              'club': 'Ski-O Swiss',
-              'source': 'solv',
-              '_link': 'http://ol.zimaa.ch/api/events/solv/3260'
-            }
-          ]
-        }, done);
+              UniqueID: 7496,
+              EventDate: "2015-01-04",
+              EventName: "Kakowa Winter-OL",
+              EventCity: "Lausen",
+              EventMap: "Grammet-Limperg",
+              EventClub: "OLG Kakowa",
+              SubTitle: "Dummy",
+              ResultListID: 3263,
+              ResultType: 0,
+              ResultModTime: "20150104T165326",
+            },
+          ],
+        });
+      
+      nock("https://results.picoevents.ch/")
+        .get("/api/liveevents4.php")
+        .reply(200, {
+          liveevents: []
+        });
+
+      request(app)
+        .get("/api/events")
+        .set("Connection", "keep-alive")
+        .set("Accept-Encoding", "gzip")
+        .expect("Content-Type", /json/)
+        .expect(200)
+        .expect(
+          {
+            events: [
+              {
+                id: 3263,
+                name: "Kakowa Winter-OL",
+                date: "2015-01-04",
+                subtitle: "Dummy",
+                map: "Grammet-Limperg",
+                club: "OLG Kakowa",
+                source: "solv",
+                _link: "http://ol.zimaa.ch/api/events/solv/3263",
+              },
+              {
+                id: 3260,
+                name: "Ski-O Meeting lang",
+                date: "2015-01-03",
+                map: "Bernau",
+                club: "Ski-O Swiss",
+                source: "solv",
+                _link: "http://ol.zimaa.ch/api/events/solv/3260",
+              },
+            ],
+          }
+        ).end(function(err, res) {
+          done();
+        });
     });
   });
 });

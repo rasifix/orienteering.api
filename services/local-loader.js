@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var request = require('request');
+var axios = require("axios");
 
-module.exports = function(id, callback, errorCallback) {
-  request({
-    url: 'http://localhost:3000/api/events/' + id
-  }, function(error, response, body) {
-    if (response.statusCode === 404) {
-      errorCallback({ 
-        statusCode: 404,
-        message: 'event with id ' + id + ' does not exist'
-      })
-      return;
-    }
-    
-    var sequence = 1;
-    var json = JSON.parse(body);
-    json.categories.forEach(function(category) {
-      category.runners.forEach(function(runner) {
-        runner.id = runner.id || sequence++;
+module.exports = function (id, callback, errorCallback) {
+  axios
+    .get("http://localhost:3000/api/events/local/" + id)
+    .then(function (error, response, body) {
+      if (response.status === 404) {
+        errorCallback({
+          statusCode: 404,
+          message: "event with id " + id + " does not exist",
+        });
+        return;
+      }
+
+      var sequence = 1;
+      var json = JSON.parse(body);
+      json.categories.forEach(function (category) {
+        category.runners.forEach(function (runner) {
+          runner.id = runner.id || sequence++;
+        });
       });
+      callback(json);
     });
-    callback(json);
-  });
-}
+};

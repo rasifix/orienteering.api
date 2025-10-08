@@ -68,6 +68,10 @@ module.exports.parseTime = function(str) {
 }
 
 module.exports.formatTime = function(seconds) {
+  if (!seconds) {
+    return "-";
+  }
+
   if (seconds >= 0) {
     if (seconds >= 3600) {
       return Math.floor(seconds / 3600) + ":" + pad(Math.floor(seconds / 60) % 60) + ":" + pad(seconds % 60);

@@ -20,6 +20,7 @@ var basicAuth = require('basic-auth');
 
 var solv = require('./services/solv-loader');
 var local = require('./services/local-loader');
+var picoevents = require('./services/picoevents-loader');
 
 var app = express();
 app.use(compress());
@@ -33,56 +34,45 @@ app.use(function(req, res, next) {
 
 app.get('/api/events', require('./routes/events'));
 
+// solv
 app.get('/api/events/solv/:id', require('./routes/solv/event')(solv));
-
 app.get('/api/events/solv/:id/categories', require('./routes/solv/categories')(solv));
-
 app.get('/api/events/solv/:id/categories/:categoryId', require('./routes/solv/category')(solv));
-
 app.get('/api/events/solv/:id/courses', require('./routes/solv/courses')(solv));
-
 app.get('/api/events/solv/:id/courses/:courseId', require('./routes/solv/course')(solv));
-
 app.get('/api/events/solv/:id/legs', require('./routes/solv/legs')(solv));
-
 app.get('/api/events/solv/:id/legs/:legId', require('./routes/solv/leg')(solv));
-
 app.get('/api/events/solv/:id/controls', require('./routes/solv/controls')(solv));
-
 app.get('/api/events/solv/:id/controls/:controlId', require('./routes/solv/control')(solv));
-
 app.get('/api/events/solv/:id/runners', require('./routes/solv/runners')(solv));
-
 app.get('/api/events/solv/:id/starttime', require('./routes/solv/starttime')(solv));
 
+// picoevents
+app.get('/api/events/picoevents/:id', require('./routes/solv/event')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/categories', require('./routes/solv/categories')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/categories/:categoryId', require('./routes/solv/category')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/courses', require('./routes/solv/courses')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/courses/:courseId', require('./routes/solv/course')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/legs', require('./routes/solv/legs')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/legs/:legId', require('./routes/solv/leg')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/controls', require('./routes/solv/controls')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/controls/:controlId', require('./routes/solv/control')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/runners', require('./routes/solv/runners')(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/starttime', require('./routes/solv/starttime')(picoevents.loadLiveEvents));
 
-
+// local
 app.get('/api/events/local/:id', require('./routes/solv/event')(local));
-
 app.get('/api/events/local/:id/categories', require('./routes/solv/categories')(local));
-
 app.get('/api/events/local/:id/categories/:categoryId', require('./routes/solv/category')(local));
-
 app.get('/api/events/local/:id/courses', require('./routes/solv/courses')(local));
-
 app.get('/api/events/local/:id/courses/:courseId', require('./routes/solv/course')(local));
-
 app.get('/api/events/local/:id/legs', require('./routes/solv/legs')(local));
-
 app.get('/api/events/local/:id/legs/:legId', require('./routes/solv/leg')(local));
-
 app.get('/api/events/local/:id/controls', require('./routes/solv/controls')(local));
-
 app.get('/api/events/local/:id/controls/:controlId', require('./routes/solv/control')(local));
-
 app.get('/api/events/local/:id/runners', require('./routes/solv/runners')(local));
-
 app.get('/api/events/local/:id/starttime', require('./routes/solv/starttime')(local));
-
-
-
-app.get('/api/events/:id', require('./routes/local/event'));
-
+app.get('/api/events/local/:id', require('./routes/local/event'));
 
 
 var auth = function (req, res, next) {

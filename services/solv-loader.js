@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var request = require('request');
+var axios = require('axios');
 var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 
 module.exports = function(id, callback, errorCallback) {
-  request({
-    url: 'http://o-l.ch/cgi-bin/results', 
-    encoding: 'binary',
-    qs: {
+  axios.get('http://o-l.ch/cgi-bin/results', {
       type: 'rang',
       rl_id: id,
       kind: 'all',
       zwizt: 1,
       csv: 1
     }
-  }, function(error, response, body) {
+  ).then(function(error, response) {
+    var body = response.data;
+
     // interpret unknown event - SOLV does not properly do that for us...
-    if (response.statusCode === 404 || body.substring(0, 14) === '<!DOCTYPE html') {
+    if (response.status === 404 || body.substring(0, 14) === '<!DOCTYPE html') {
       errorCallback({ 
         statusCode: 404,
         message: 'event with id ' + id + ' does not exist'
