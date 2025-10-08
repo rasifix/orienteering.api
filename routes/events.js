@@ -61,7 +61,7 @@ function solvEvents(year) {
 
 function picoEvents() {
   return axios
-    .get("https://results.picoevents.ch/api/liveevents4.php")
+    .get("https://results.picoevents.ch/api/liveevents.php")
     .then(function (response) {
       if (response.status !== 200) {
         res.status(500);
