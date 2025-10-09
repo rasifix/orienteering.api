@@ -18,14 +18,7 @@ var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 
 module.exports = function(id, callback, errorCallback) {
-  axios.get('http://o-l.ch/cgi-bin/results', {
-      type: 'rang',
-      rl_id: id,
-      kind: 'all',
-      zwizt: 1,
-      csv: 1
-    }
-  ).then(function(response) {
+  axios.get('http://o-l.ch/cgi-bin/results?type=rang&kind=all&zwizt=1&csv=1&rl_id=' + id).then(function(response) {
     var body = response.data;
 
     // interpret unknown event - SOLV does not properly do that for us...
