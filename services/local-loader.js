@@ -17,7 +17,7 @@ var axios = require("axios");
 
 module.exports = function (id, callback, errorCallback) {
   axios
-    .get("http://localhost:3000/api/events/local/" + id)
+    .get("https://api.zimaa.ch/api/events/local/" + id)
     .then(function (error, response, body) {
       if (response.status === 404) {
         errorCallback({
