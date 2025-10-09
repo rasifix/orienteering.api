@@ -18,8 +18,11 @@ var reformatTime = require('./time').reformatTime;
 var parseTime = require('./time').parseTime;
 
 module.exports = function(id, callback, errorCallback) {
-  axios.get('http://o-l.ch/cgi-bin/results?type=rang&kind=all&zwizt=1&csv=1&rl_id=' + id).then(function(response) {
-    var body = response.data;
+  axios.get('http://o-l.ch/cgi-bin/results?type=rang&kind=all&zwizt=1&csv=1&rl_id=' + id, {
+    responseType: 'arraybuffer',
+    responseEncoding: 'binary'
+  }).then(function(response) {
+    var body = response.data.toString('latin1');
 
     // interpret unknown event - SOLV does not properly do that for us...
     if (response.status === 404 || body.substring(0, 14) === '<!DOCTYPE html') {
