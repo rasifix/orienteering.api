@@ -36,6 +36,7 @@ function parseCsv(body) {
   const header = lines.splice(0, 1)[0].split(",");
 
   const sortKeyIdx = header.indexOf("[SORTKEY]");
+  const statusIdx = header.indexOf("[IOFRESSTATTEXT]");
   const startTimeIdx = header.indexOf("[STARTFULLPREC]");
   const noOfSplitsIdx = header.indexOf("[NOFSPLITS]");
   const termIdx = header.indexOf("[TERM]");
@@ -69,6 +70,11 @@ function parseCsv(body) {
       };
       categories[name] = category;
       result.categories.push(category);
+    }
+    
+    var status = tokens[statusIdx];
+    if (status !== "OK") {
+      return;
     }
 
     var startTime = parseInt(tokens[startTimeIdx]);
