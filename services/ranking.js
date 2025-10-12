@@ -1,5 +1,3 @@
-const leg = require('../routes/solv/leg');
-
 /*
  * Copyright 2015 Simon Raess
  *
