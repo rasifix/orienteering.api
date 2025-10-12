@@ -74,16 +74,13 @@ function defineCourses(categories) {
       runners: cats.reduce(function(prev, cat) { 
         return prev.concat(cat.runners.map(function(runner) {
           return {
-            id: idx++,
+            id: ++idx,
             startTime: runner.startTime,
             yearOfBirth: runner.yearOfBirth,
             time: runner.time,
-            sex: runner.sex,
-            ecard: runner.ecard,
             splits: runner.splits,
             club: runner.club,
             fullName: runner.fullName,
-            nation: runner.nation,
             city: runner.city,
             category: cat.name
           };

@@ -45,7 +45,6 @@ function defineCourses(categories) {
   var courses = [];
   Object.keys(groupedCategories).forEach(function(grouped) {
     var cats = groupedCategories[grouped];
-    var idx = 0;
     var id = cats.map(function(cat) { return cat.name; }).sort().join('-');
     courses.push({ 
       id: id,

@@ -1,3 +1,5 @@
+const leg = require('../routes/solv/leg');
+
 /*
  * Copyright 2015 Simon Raess
  *
@@ -41,11 +43,18 @@ module.exports.parseRanking = function(json) {
       runners: []
     };
   });
+
+  console.log("runners are " + json.runners.map(function(runner) { return runner.fullName }));
   
-  var sequence = 1;
+  json.runners.forEach(function(runner) {
+    if (!runner.id) {
+      console.log("runner " + runner.fullName + " does not have an id!!!");
+    }
+  })
+  
   result.runners = json.runners.map(function(runner) {
     return {
-      id: runner.id || sequence++,
+      id: runner.id,
       // runners have only a fullname in the interface!
       fullName: runner.fullName,
       time: runner.time,
@@ -117,7 +126,7 @@ module.exports.parseRanking = function(json) {
     if (selected.length > 0) {
       leg.idealSplit = Math.round(selected.reduce(sum) / selected.length);
     }
-    
+
     // only if there are valid splits for this leg
     if (leg.runners.length > 0) {
       leg.fastestSplit = parseTime(leg.runners[0].split);
@@ -140,7 +149,6 @@ module.exports.parseRanking = function(json) {
 
   // calculate the ideal time [s]
   if (result.legs.length > 0) {
-    console.log(result.legs.map(function(leg) { return leg.code + ": " + leg.idealSplit; }));
     result.idealTime = result.legs.map(function(leg) { return leg.idealSplit; }).reduce(sum);
     
     // visualization property - leg.position [0..1), leg.weight[0..1)
@@ -199,8 +207,7 @@ module.exports.parseRanking = function(json) {
       var split = runner.splits[idx];
       if (!split) {
         console.log('invalid split @ ' + idx + ' for runner ' + runner.fullName);
-      }
-      if (split.split !== '-') {
+      } else if (split.split !== '-') {
         arr.push({
           id: runner.id,
           split: split.split,
@@ -281,8 +288,7 @@ module.exports.parseRanking = function(json) {
         }).find(function(split) {
           return split.rank === 1;
         });
-        
-        // no leader for this leg?!
+
         if (leader) {
           var leaderTime = leader.time;
           if (parseTime(split.time) !== null) {
