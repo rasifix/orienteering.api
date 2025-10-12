@@ -140,6 +140,7 @@ module.exports.parseRanking = function(json) {
 
   // calculate the ideal time [s]
   if (result.legs.length > 0) {
+    console.log(result.legs.map(function(leg) { return leg.code + ": " + leg.idealSplit; }));
     result.idealTime = result.legs.map(function(leg) { return leg.idealSplit; }).reduce(sum);
     
     // visualization property - leg.position [0..1), leg.weight[0..1)

@@ -68,7 +68,9 @@ module.exports.parseTime = function(str) {
 }
 
 module.exports.formatTime = function(seconds) {
-  if (!seconds) {
+  if (seconds === 0) {
+    return "00:00";
+  } else if (!seconds) {
     return "-";
   }
 
