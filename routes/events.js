@@ -15,6 +15,7 @@
  */
 var axios = require("axios");
 const localLoader = require("../services/local-loader");
+const picoEvents = require("../services/picoevents");
 
 function solvEvents(year) {
   return axios
@@ -58,35 +59,6 @@ function solvEvents(year) {
         });
     });
 }
-
-function picoEvents() {
-  return axios
-    .get("https://results.picoevents.ch/api/liveevents.php")
-    .then(function (response) {
-      if (response.status !== 200) {
-        res.status(500);
-        res.json({ error: "backend server reported a problem" });
-        return;
-      }
-
-      var json = response.data;
-
-      return json.liveevents
-        .map(function (entry) {
-          return {
-            id: entry.folder,
-            name: entry.name,
-            date: entry.date,
-            map: entry.map,
-            club: entry.organizer,
-            source: "picoevents",
-            _link:
-              "http://ol.zimaa.ch/api/events/picoevents/" + entry.folder,
-          };
-        });
-    });
-}
-
 
 module.exports = function (req, res) {
   var year = parseInt(req.query.year) || new Date().getFullYear();

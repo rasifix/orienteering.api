@@ -15,10 +15,13 @@
  */
 var axios = require("axios");
 var formatTime = require("./time").formatTime;
+var picoEvents = require("./picoevents");
 
 function clean(value) {
   if (value) {
-    return value.startsWith('"') && value.endsWith('"') ? value.substring(1, value.length - 1) : value;
+    return value.startsWith('"') && value.endsWith('"')
+      ? value.substring(1, value.length - 1)
+      : value;
   }
   return value;
 }
@@ -71,7 +74,7 @@ function parseCsv(body) {
       categories[name] = category;
       result.categories.push(category);
     }
-    
+
     var status = tokens[statusIdx];
     if (status !== "OK") {
       return;
@@ -81,9 +84,7 @@ function parseCsv(body) {
     var runner = {
       id: tokens[sortKeyIdx],
       fullName:
-        clean(tokens[firstNameIdx]) +
-        " " +
-        clean(tokens[familyNameIdx]),
+        clean(tokens[firstNameIdx]) + " " + clean(tokens[familyNameIdx]),
       yearOfBirth: tokens[yobIdx],
       city: clean(tokens[townIdx]),
       club: clean(tokens[clubIdx]),
@@ -93,8 +94,10 @@ function parseCsv(body) {
     };
 
     for (var i = termIdx + 3; i < tokens.length - 2; i += 2) {
-      var time = tokens[i + 1] ? formatTime(parseInt(tokens[i + 1]) - startTime) : "";
-      var code = tokens[i] === '9999' ? 'Zi' : tokens[i];
+      var time = tokens[i + 1]
+        ? formatTime(parseInt(tokens[i + 1]) - startTime)
+        : "";
+      var code = tokens[i] === "9999" ? "Zi" : tokens[i];
       runner.splits.push({ code, time: time });
     }
 
@@ -106,19 +109,33 @@ function parseCsv(body) {
 
 module.exports.parseCsv = parseCsv;
 module.exports.loadLiveEvents = function (id, callback, errorCallback) {
-  axios.get("https://results.picoevents.ch/" + id + "/results.csv", {
-    responseType: 'arraybuffer',
-    responseEncoding: 'binary'
-  })
-    .then(function(response) {
-      if (response.status === 404) {
-        errorCallback({
-          statusCode: 404,
-          message: "event with id " + id + " does not exist",
-        });
-        return;
-      }
-
-      callback(parseCsv(response.data.toString("latin1")));
+  picoEvents().then(function (events) {
+    console.log(events);
+    var event = events.find(function (ev) {
+      return ev.id == id;
     });
+    if (event && new Date(event.date + "T" + event.laststart) > new Date()) {
+      errorCallback({
+        statusCode: 404,
+        message: "event with id " + id + " does not exist",
+      });
+    } else {
+      axios
+        .get("https://results.picoevents.ch/" + id + "/results.csv", {
+          responseType: "arraybuffer",
+          responseEncoding: "binary",
+        })
+        .then(function (response) {
+          if (response.status === 404) {
+            errorCallback({
+              statusCode: 404,
+              message: "event with id " + id + " does not exist",
+            });
+            return;
+          }
+
+          callback(parseCsv(response.data.toString("latin1")));
+        });
+    }
+  });
 };
