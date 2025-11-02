@@ -114,7 +114,8 @@ module.exports.loadLiveEvents = function (id, callback, errorCallback) {
     var event = events.find(function (ev) {
       return ev.id == id;
     });
-    if (event && new Date(event.date + "T" + event.laststart) < new Date()) {
+    if (event && new Date(event.date + "T" + event.laststart) > new Date()) {
+      console.log(event.date + "T" + event.laststart, new Date());
       errorCallback({
         statusCode: 404,
         message: "event with id " + id + " does not exist",
