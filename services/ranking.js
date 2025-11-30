@@ -41,8 +41,6 @@ module.exports.parseRanking = function(json) {
       runners: []
     };
   });
-
-  console.log("runners are " + json.runners.map(function(runner) { return runner.fullName }));
   
   json.runners.forEach(function(runner) {
     if (!runner.id) {
@@ -292,8 +290,7 @@ module.exports.parseRanking = function(json) {
           if (parseTime(split.time) !== null) {
             var t = parseTime(split.time) - parseTime(leaderTime);
             if (t < 0) {
-              console.log(split.time + ' < ' + leader.time);
-              console.log(leader.rank);
+              console.log(split.time + ' < ' + leader.time, leader.rank);
             }
             split.overallBehind = formatTime(t);
             split.fastestBehind = formatTime(parseTime(split.time) - parseTime(result.legs[splitIdx].fastestTime));

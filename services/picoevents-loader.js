@@ -110,33 +110,39 @@ function parseCsv(body) {
 module.exports.parseCsv = parseCsv;
 module.exports.loadLiveEvents = function (id, callback, errorCallback) {
   picoEvents().then(function (events) {
-    console.log(events);
     var event = events.find(function (ev) {
       return ev.id == id;
     });
-    if (event && new Date(event.date + "T" + event.laststart) > new Date()) {
-      console.log(event.date + "T" + event.laststart, new Date());
+    if (!event) {
       errorCallback({
         statusCode: 404,
         message: "event with id " + id + " does not exist",
       });
-    } else {
-      axios
-        .get("https://results.picoevents.ch/" + id + "/results.csv", {
-          responseType: "arraybuffer",
-          responseEncoding: "binary",
-        })
-        .then(function (response) {
-          if (response.status === 404) {
-            errorCallback({
-              statusCode: 404,
-              message: "event with id " + id + " does not exist",
-            });
-            return;
-          }
-
-          callback(parseCsv(response.data.toString("latin1")));
-        });
+      return;
     }
+    if (new Date(event.date + "T" + event.laststart) > new Date()) {
+      console.log("not all runners of event " + id + " have started yet: " + event.date + "T" + event.laststart, new Date());
+      errorCallback({
+        statusCode: 404,
+        message: "not all runners of event " + id + " have started yet: " + event.date + "T" + event.laststart,
+      });
+      return;
+    }
+
+    axios
+      .get("https://results.picoevents.ch/" + id + "/results.csv", {
+        responseType: "arraybuffer",
+        responseEncoding: "binary",
+      })
+      .then(function (response) {
+        if (response.status === 404) {
+          errorCallback({
+            statusCode: 404,
+            message: "event with id " + id + " does not exist",
+          });
+          return;
+        }
+        callback(parseCsv(response.data.toString("latin1")));
+      });
   });
 };
