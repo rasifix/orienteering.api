@@ -116,6 +116,7 @@ module.exports.loadLiveEvents = function (id, callback, errorCallback) {
     });
     if (!event) {
       console.error("event with id " + id + " does not exist");
+      console.log("the following events exist", events.map(e => e.id));
       errorCallback({
         statusCode: 404,
         message: "event with id " + id + " does not exist",
