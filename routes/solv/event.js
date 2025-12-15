@@ -16,6 +16,7 @@
 
 module.exports = function(loader) {
   return function(req, res) {
+    console.log("getting event " + req.params.id);
     loader(req.params.id, function(event) {
       res.json(event);
     }, function(error) {
