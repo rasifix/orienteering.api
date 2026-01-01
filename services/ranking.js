@@ -34,7 +34,7 @@ module.exports.parseRanking = function(json) {
 
   // define the legs
   // note: this won't work if there are "unfair" courses
-  result.legs = json.runners[0].splits.map(function(split, idx, splits) {
+  result.legs = json.runners.length === 0 ? [] : json.runners[0].splits.map(function(split, idx, splits) {
     var from = idx === 0 ? 'St' : splits[idx - 1].code;
     return {
       code: from + '-' + split.code,
