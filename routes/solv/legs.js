@@ -129,6 +129,9 @@ function defineLegs(categories) {
     });
     
     if (leg.runners.length > 0) {
+      if (leg.errorFrequency > 50) {
+        console.log("leg " + leg.id + " has high error frequency: " + leg.errorFrequency + "%", timeLosses); 
+      }
       leg.errorFrequency = Math.round(100 * timeLosses / leg.runners.length);
     }
   });
