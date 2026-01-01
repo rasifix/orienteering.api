@@ -82,7 +82,7 @@ function parseCsv(body) {
 
     var startTime = parseInt(tokens[startTimeIdx]);
     var runner = {
-      id: tokens[sortKeyIdx],
+      id: "" + tokens[sortKeyIdx],
       fullName:
         clean(tokens[firstNameIdx]) + " " + clean(tokens[familyNameIdx]),
       yearOfBirth: tokens[yobIdx],
