@@ -109,7 +109,6 @@ function parseCsv(body) {
 
 module.exports.parseCsv = parseCsv;
 module.exports.loadLiveEvents = function (id, callback, errorCallback) {
-  console.trace("loading picoevents event " + id, callback, errorCallback);
   picoEvents().then(function (events) {
     var event = events.find(function (ev) {
       return ev.id == id;

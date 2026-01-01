@@ -39,6 +39,9 @@ module.exports = function(loader) {
           runners: parseRanking(course).runners
         });
       }    
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };

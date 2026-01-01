@@ -31,6 +31,9 @@ module.exports = function(loader) {
       });
     
       res.json(result);
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };

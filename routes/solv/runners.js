@@ -22,6 +22,9 @@ module.exports = function(loader) {
       var result = defineRunners(event.categories);
     
       res.json(result);
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };

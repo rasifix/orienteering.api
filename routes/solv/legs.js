@@ -24,6 +24,9 @@ module.exports = function(loader) {
       var legs = defineLegs(event.categories);
     
       res.json(legs);
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };

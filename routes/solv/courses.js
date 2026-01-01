@@ -21,6 +21,9 @@ module.exports = function(loader) {
       var courses = defineCourses(event.categories);
     
       res.json(courses);
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 }

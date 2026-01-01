@@ -22,8 +22,10 @@ module.exports = function(loader) {
     var id = req.params.id;
     loader(id, function(event) {
       var legs = defineControls(event.categories);
-    
       res.json(legs);
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };

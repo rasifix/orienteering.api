@@ -35,6 +35,9 @@ module.exports = function(loader) {
       } else {
         res.json(leg);
       }    
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };

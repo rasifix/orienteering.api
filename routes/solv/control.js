@@ -28,6 +28,9 @@ module.exports = function(loader) {
       } else {
         res.json(control);
       }
+    }, function(error) {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
 };
