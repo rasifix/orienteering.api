@@ -32,6 +32,10 @@ module.exports.parseRanking = function(json) {
     controls: json.controls
   };
 
+  if (json.runners.length === 0) {
+    console.log('no runners in ranking ' + json.name);
+  }
+
   // define the legs
   // note: this won't work if there are "unfair" courses
   result.legs = json.runners.length === 0 ? [] : json.runners[0].splits.map(function(split, idx, splits) {
