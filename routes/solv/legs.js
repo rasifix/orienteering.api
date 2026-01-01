@@ -85,7 +85,7 @@ function defineLegs(categories) {
       return parseTime(s1.split) - parseTime(s2.split);
     });
     leg.categories = Object.keys(leg.categories);
-    leg.errorFrequency = Math.round(100 * 10 / leg.runners.length);    
+    leg.errorFrequency = 0;
     result.push(leg);
   });
   result.sort(legSort);
