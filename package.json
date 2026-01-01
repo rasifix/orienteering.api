@@ -14,7 +14,7 @@
   "author": "Simon Räss",
   "license": "Apache-2.0",
   "dependencies": {
-    "@rasifix/orienteering-utils": "^1.0.3",
+    "@rasifix/orienteering-utils": "^2.0.40",
     "axios": "^1.12.2",
     "basic-auth": "~1.0.3",
     "body-parser": "^1.18.3",

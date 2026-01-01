@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var parseTime = require('../../services/time').parseTime;
-var formatTime = require('../../services/time').formatTime;
-var parseRanking = require('../../services/ranking').parseRanking;
+import { formatTime, parseRanking, parseTime } from '@rasifix/orienteering-utils';
 
 module.exports = function(loader) {
   return function(req, res) {
@@ -86,7 +84,9 @@ function defineLegs(categories) {
     });
     leg.categories = Object.keys(leg.categories);
     leg.errorFrequency = 0;
-    result.push(leg);
+    if (leg.runners.length > 0) {
+      result.push(leg);
+    }
   });
   result.sort(legSort);
   
@@ -100,8 +100,6 @@ function defineLegs(categories) {
   
   result.forEach(function(leg) {
     var timeLosses = 0;
-    
-    // TODO: avoid defining legs without runners?!
     var fastest = leg.runners.length > 0 ? parseTime(leg.runners[0].split) : 0;
     
     leg.runners.forEach(function(runner, idx) {
@@ -132,7 +130,7 @@ function defineLegs(categories) {
       leg.errorFrequency = Math.round(100 * timeLosses / leg.runners.length);
       if (leg.errorFrequency === 100) {
         console.log("leg " + leg.id + " has high error frequency: " + leg.errorFrequency + "%", timeLosses, leg.runners.length); 
-        
+
       }
     }
   });

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var parseRanking = require('../../services/ranking').parseRanking;
+import { parseRanking } from '@rasifix/orienteering-utils';
 
 module.exports = function(loader) {
   return function(req, res) {
