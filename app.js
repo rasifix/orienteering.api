@@ -32,6 +32,17 @@ app.use(function(req, res, next) {
   next();
 });
 
+// Cache middleware for GET requests - 1 day TTL
+var cacheMiddleware = function(req, res, next) {
+  if (req.method === 'GET') {
+    var oneDayInSeconds = 86400; // 24 * 60 * 60
+    res.set('Cache-Control', 'public, max-age=' + oneDayInSeconds);
+  }
+  next();
+};
+
+app.use('/api/events', cacheMiddleware);
+
 app.get('/api/events', require('./routes/events'));
 
 // solv
