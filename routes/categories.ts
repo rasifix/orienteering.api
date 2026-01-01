@@ -13,15 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Request, Response } from 'express';
+import { EventLoader } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    console.log("getting event " + req.params.id);
-    loader(req.params.id, function(event) {
-      res.json(event);
-    }, function(error) {
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+  
+    loader(id, (event) => {
+      const result = event.categories.map((category) => {
+        return {
+          name: category.name,
+          distance: (category as any).distance,
+          ascent: (category as any).ascent,
+          controls: (category as any).controls,
+          runners: category.runners.length
+        };
+      });
+    
+      res.json(result);
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
-    });  
-  }
-};
+    });
+  };
+}

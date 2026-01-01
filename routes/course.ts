@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { parseRanking, parseTime } from '@rasifix/orienteering-utils';
+import { Request, Response } from 'express';
+import { ranking, parseTime } from '@rasifix/orienteering-utils';
+import { EventLoader, Category, Runner } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-    var courseId = req.params.courseId;
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    const courseId = req.params.courseId;
   
-    loader(id, function(event) {      
-      var courses = defineCourses(event.categories);
-      var course = courses.find(function(course) {
+    loader(id, (event) => {      
+      const courses = defineCourses(event.categories);
+      const course = courses.find((course) => {
         return course.id === courseId;
       });
         
@@ -30,31 +32,38 @@ module.exports = function(loader) {
         res.status(404);
         res.json({ message: 'course ' + courseId + ' does not exist!' });
       } else {
+        const runnersFormatted = course.runners.map((r: any) => ({
+          ...r,
+          id: String(r.id),
+          startTime: r.startTime || '',
+          yearOfBirth: r.yearOfBirth?.toString(),
+          splits: r.splits || []
+        }));
         res.json({
           name: course.name,
           distance: course.distance,
           ascent: course.ascent,
           controls: course.controls,
-          runners: parseRanking(course).runners
+          runners: ranking.parseRanking(runnersFormatted).runners
         });
       }    
-    }, function(error) {
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
-};
+}
 
-function defineCourses(categories) {
-  var groupedCategories = { };
-  categories.forEach(function(category) {
+function defineCourses(categories: Category[]) {
+  const groupedCategories: { [key: string]: Category[] } = {};
+  categories.forEach((category) => {
     if (category.runners.length === 0) {
       // category without runners are ignored
       return;
     }
 
     // find categories with identical courses
-    var controls = category.runners[0].splits.map(function(split) { return split.code; }).join('-');
+    const controls = category.runners[0].splits!.map((split) => split.code).join('-');
     if (!groupedCategories[controls]) {
       groupedCategories[controls] = [];
     }
@@ -62,22 +71,22 @@ function defineCourses(categories) {
   });
 
   // build courses
-  var courses = [];
-  Object.keys(groupedCategories).forEach(function(grouped) {
-    var cats = groupedCategories[grouped];
-    var idx = 0;
-    var id = cats.map(function(cat) { return cat.name; }).sort().join('-');
+  const courses: any[] = [];
+  Object.keys(groupedCategories).forEach((grouped) => {
+    const cats = groupedCategories[grouped];
+    let idx = 0;
+    const id = cats.map((cat) => cat.name).sort().join('-');
     courses.push({ 
       id: id,
       name: id,
-      distance: cats[0].distance,
-      ascent: cats[0].ascent,
-      controls: cats[0].controls,
-      runners: cats.reduce(function(prev, cat) { 
-        return prev.concat(cat.runners.map(function(runner) {
+      distance: (cats[0] as any).distance,
+      ascent: (cats[0] as any).ascent,
+      controls: (cats[0] as any).controls,
+      runners: cats.reduce((prev, cat) => { 
+        return prev.concat(cat.runners.map((runner) => {
           return {
             id: "" + ++idx,
-            startTime: runner.startTime,
+            startTime: runner.starttime,
             yearOfBirth: runner.yearOfBirth,
             time: runner.time,
             splits: runner.splits,
@@ -87,11 +96,11 @@ function defineCourses(categories) {
             category: cat.name
           };
         })); 
-      }, [ ])
+      }, [] as any[])
     });
   });
    
-  courses.sort(function(c1, c2) { 
+  courses.sort((c1, c2) => { 
     if (c1.id < c2.id) {
       return -1;
     } else if (c1.id > c2.id) {
@@ -99,11 +108,11 @@ function defineCourses(categories) {
     } else {
       return 0;
     }    
-  }).forEach(function(course) {
+  }).forEach((course) => {
     // sort the runners according to their run time
-    course.runners.sort(function(r1, r2) {
-      var t1 = parseTime(r1.time);
-      var t2 = parseTime(r2.time);
+    course.runners.sort((r1: any, r2: any) => {
+      const t1 = parseTime(r1.time);
+      const t2 = parseTime(r2.time);
       if (t1 === null && t2 === null) {
         return 0;
       } else if (t1 !== null && t2 === null) {
@@ -111,7 +120,7 @@ function defineCourses(categories) {
       } else if (t1 === null && t2 !== null) {
         return 1;
       } else {
-        return parseTime(r1.time) - parseTime(r2.time);
+        return (parseTime(r1.time) ?? 0) - (parseTime(r2.time) ?? 0);
       }
     });
   });

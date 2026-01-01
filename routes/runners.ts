@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Request, Response } from 'express';
+import { EventLoader, Category } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
   
-    loader(id, function(event) {      
-      var result = defineRunners(event.categories);
+    loader(id, (event) => {      
+      const result = defineRunners(event.categories);
     
       res.json(result);
-    }, function(error) {
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
-};
+}
 
-function defineRunners(categories) {
-  var arrayOfArray = categories.map(function(category) {
-    return category.runners.map(function(runner) {
+function defineRunners(categories: Category[]) {
+  const arrayOfArray = categories.map((category) => {
+    return category.runners.map((runner) => {
       return {
         id: runner.id,
         fullName: runner.fullName,
@@ -43,8 +45,8 @@ function defineRunners(categories) {
     });
   });
    
-  var runners = [];
-  return runners.concat.apply(runners, arrayOfArray).sort(function(r1, r2) {
+  const runners: any[] = [];
+  return runners.concat.apply(runners, arrayOfArray).sort((r1, r2) => {
     return r1.fullName.localeCompare(r2.fullName);
   });
 }

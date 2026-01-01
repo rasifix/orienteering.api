@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { parseRanking } from '@rasifix/orienteering-utils';
+import { Request, Response } from 'express';
+import { ranking } from '@rasifix/orienteering-utils';
+import { EventLoader } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-    var categoryId = req.params.categoryId;
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    const categoryId = req.params.categoryId;
   
-    loader(id, function(event) {      
-      var category = event.categories.find(function(category) {
+    loader(id, (event) => {      
+      const category = event.categories.find((category) => {
         return category.name === categoryId;
       });
         
@@ -29,18 +31,25 @@ module.exports = function(loader) {
         res.status(404);
         res.json({ message: 'category ' + categoryId + ' does not exist!' });
       } else {
+        const runnersFormatted = category.runners.map(r => ({
+          ...r,
+          id: String(r.id),
+          category: category.name,
+          startTime: r.starttime || '',
+          yearOfBirth: r.yearOfBirth?.toString(),
+          splits: r.splits || []
+        }));
         res.json({
           name: category.name,
-          distance: category.distance,
-          ascent: category.ascent,
-          controls: category.controls,
-          runners: parseRanking(category).runners
+          distance: (category as any).distance,
+          ascent: (category as any).ascent,
+          controls: (category as any).controls,
+          runners: ranking.parseRanking(runnersFormatted).runners
         });
       }    
-    }, function(error) {
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
-};
-
+}

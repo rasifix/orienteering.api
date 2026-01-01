@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module.exports.reformatTime = function(str) {
+
+export function reformatTime(str: string): string {
   // normalize missing punch time
-  if (str === '-' || str === '-----') {
+  if (str === '-' || str === '-----') {
     return '-';
   }
   
@@ -29,8 +30,8 @@ module.exports.reformatTime = function(str) {
     return str;
   }
   
-  var splits = str.split(':');
-  var seconds;
+  const splits = str.split(':');
+  let seconds: number;
   
   if (splits.length === 3) {
     seconds = parseInt(splits[0], 10) * 3600 + parseInt(splits[1], 10) * 60 + parseInt(sanitize(splits[2]), 10);
@@ -40,12 +41,12 @@ module.exports.reformatTime = function(str) {
     seconds = 0;
   }
   
-  return module.exports.formatTime(seconds);
+  return formatTime(seconds);
 }
 
-var regex = /(-)?[0-9]?[0-9]:[0-9][0-9](:[0-9][0-9])?/;
+const regex = /(-)?[0-9]?[0-9]:[0-9][0-9](:[0-9][0-9])?/;
 
-module.exports.parseTime = function(str) {
+export function parseTime(str: string | null | undefined): number | null {
   if (!str) {
     return null;
   } else if (typeof str !== 'string') {
@@ -54,20 +55,20 @@ module.exports.parseTime = function(str) {
     return null;
   }
 
-  var split = str.split(":");
-  var result = null;
+  const split = str.split(":");
+  let result: number | null = null;
   if (split.length === 2) {
-    var negative = split[0][0] === '-';
-    var minutes = parseInt(split[0], 10);
+    const negative = split[0][0] === '-';
+    const minutes = parseInt(split[0], 10);
     result = (negative ? -1 : 1) * (Math.abs(minutes) * 60 + parseInt(split[1], 10));
   } else if (split.length === 3) {
     result = parseInt(split[0], 10) * 3600 + parseInt(split[1], 10) * 60 + parseInt(split[2], 10);
   }
   
-  return isNaN(result) ? null : result;
+  return result !== null && isNaN(result) ? null : result;
 }
 
-module.exports.formatTime = function(seconds) {
+export function formatTime(seconds: number | null | undefined): string {
   if (seconds === 0) {
     return "0:00";
   } else if (!seconds) {
@@ -84,12 +85,12 @@ module.exports.formatTime = function(seconds) {
   }
 }
 
-function pad(value) {
-  return value < 10 ? '0' + value : '' + value
+function pad(value: number): string {
+  return value < 10 ? '0' + value : '' + value;
 }
     
-function sanitize(value) {
-  var comma = value.indexOf(',');
+function sanitize(value: string): string {
+  const comma = value.indexOf(',');
   if (comma != -1) {
     return value.substring(0, comma);
   } else {

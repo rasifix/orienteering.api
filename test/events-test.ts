@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var should = require("should");
-var assert = require("assert");
-var nock = require('nock');
-var request = require("supertest");
+import should from 'should';
+import assert from 'assert';
+import nock from 'nock';
+import request from 'supertest';
+import app from '../app.js';
 
-var app = require("../app");
-
-describe("Events", function () {
-  describe("Test", function () {
-    it("should return proper event list", function (done) {
+describe("Events", () => {
+  describe("Test", () => {
+    it("should return proper event list", (done) => {
       nock("https://o-l.ch/")
-        .get("/cgi-bin/fixtures?mode=results&year=2025&json=1")
+        .get("/cgi-bin/fixtures?mode=results&year=2026&json=1")
         .reply(200, {
           ResultLists: [
             {
@@ -55,7 +54,7 @@ describe("Events", function () {
         });
       
       nock("https://results.picoevents.ch/")
-        .get("/api/liveevents4.php")
+        .get("/api/liveevents.php")
         .reply(200, {
           liveevents: []
         });
@@ -70,7 +69,7 @@ describe("Events", function () {
           {
             events: [
               {
-                id: 3263,
+                id: "3263",
                 name: "Kakowa Winter-OL",
                 date: "2015-01-04",
                 subtitle: "Dummy",
@@ -80,7 +79,7 @@ describe("Events", function () {
                 _link: "http://ol.zimaa.ch/api/events/solv/3263",
               },
               {
-                id: 3260,
+                id: "3260",
                 name: "Ski-O Meeting lang",
                 date: "2015-01-03",
                 map: "Bernau",
@@ -90,7 +89,7 @@ describe("Events", function () {
               },
             ],
           }
-        ).end(function(err, res) {
+        ).end((err, res) => {
           done();
         });
     });

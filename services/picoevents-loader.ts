@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var axios = require("axios");
-var formatTime = require("./time").formatTime;
-var picoEvents = require("./picoevents");
+import axios from 'axios';
+import { formatTime } from './time.ts';
+import picoEvents from './picoevents.ts';
+import { Event, Category, Runner, LoaderCallback, ErrorCallback } from '../types/index.ts';
 
-function clean(value) {
+function clean(value: string | undefined): string | undefined {
   if (value) {
     return value.startsWith('"') && value.endsWith('"')
       ? value.substring(1, value.length - 1)
@@ -26,10 +27,10 @@ function clean(value) {
   return value;
 }
 
-function parseCsv(body) {
+function parseCsv(body: string): Event {
   // convert CSV to JSON
-  var categories = {};
-  var result = {
+  const categories: { [key: string]: Category } = {};
+  const result: Event = {
     categories: [],
   };
 
@@ -50,19 +51,19 @@ function parseCsv(body) {
   const clubIdx = header.indexOf("[CLUB]");
   const runtimeNetIdx = header.indexOf("[RUNTIMENET]");
 
-  lines.forEach(function (line, idx) {
-    var tokens = line.split(",");
+  lines.forEach((line, idx) => {
+    const tokens = line.split(",");
     if (tokens.length < 50) {
       return;
     }
 
-    var name = tokens[9];
+    const name = tokens[9];
 
     if (name.indexOf("TW") !== -1 || name.indexOf("TM") !== -1) {
       return;
     }
 
-    var category = categories[name];
+    let category = categories[name];
     if (!category) {
       category = {
         name: name,
@@ -70,35 +71,35 @@ function parseCsv(body) {
         ascent: 0,
         controls: parseInt(tokens[noOfSplitsIdx]),
         runners: [],
-      };
+      } as any;
       categories[name] = category;
       result.categories.push(category);
     }
 
-    var status = tokens[statusIdx];
+    const status = tokens[statusIdx];
     if (status !== "OK") {
       return;
     }
 
-    var startTime = parseInt(tokens[startTimeIdx]);
-    var runner = {
-      id: "" + tokens[sortKeyIdx],
+    const startTime = parseInt(tokens[startTimeIdx]);
+    const runner: Runner = {
+      id: parseInt(tokens[sortKeyIdx]) || 0,
       fullName:
         clean(tokens[firstNameIdx]) + " " + clean(tokens[familyNameIdx]),
-      yearOfBirth: tokens[yobIdx],
+      yearOfBirth: parseInt(tokens[yobIdx]) || undefined,
       city: clean(tokens[townIdx]),
       club: clean(tokens[clubIdx]),
       time: formatTime(parseInt(tokens[runtimeNetIdx])),
-      startTime: formatTime(startTime),
+      starttime: formatTime(startTime),
       splits: [],
     };
 
-    for (var i = termIdx + 3; i < tokens.length - 2; i += 2) {
-      var time = tokens[i + 1]
+    for (let i = termIdx + 3; i < tokens.length - 2; i += 2) {
+      const time = tokens[i + 1]
         ? formatTime(parseInt(tokens[i + 1]) - startTime)
         : "";
-      var code = tokens[i] === "9999" ? "Zi" : tokens[i];
-      runner.splits.push({ code, time: time });
+      const code = tokens[i] === "9999" ? "Zi" : tokens[i];
+      runner.splits!.push({ code, time: time });
     }
 
     category.runners.push(runner);
@@ -107,10 +108,9 @@ function parseCsv(body) {
   return result;
 }
 
-module.exports.parseCsv = parseCsv;
-module.exports.loadLiveEvents = function (id, callback, errorCallback) {
-  picoEvents().then(function (events) {
-    var event = events.find(function (ev) {
+const loadLiveEvents = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback): void => {
+  picoEvents().then((events) => {
+    const event = events.find((ev) => {
       return ev.id == id;
     });
     if (!event) {
@@ -136,7 +136,7 @@ module.exports.loadLiveEvents = function (id, callback, errorCallback) {
         responseType: "arraybuffer",
         responseEncoding: "binary",
       })
-      .then(function (response) {
+      .then((response) => {
         if (response.status === 404) {
           console.error("event with id " + id + " does not exist");
           errorCallback({
@@ -149,3 +149,5 @@ module.exports.loadLiveEvents = function (id, callback, errorCallback) {
       });
   });
 };
+
+export { parseCsv, loadLiveEvents };

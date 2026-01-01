@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var app = require('./app');
+import { Request, Response } from 'express';
+import { EventLoader } from '../types/index.ts';
 
-var server = app.listen(8080, function() {
-  var host = server.address().address;
-  var port = server.address().port;
-
-  console.log('orienteering API server listening at http://%s:%s', host, port);
-});
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    console.log("getting event " + req.params.id);
+    loader(req.params.id, (event) => {
+      res.json(event);
+    }, (error) => {
+      res.status(error.statusCode);
+      res.json(error);
+    });  
+  };
+}

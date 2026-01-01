@@ -13,28 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var solv = require('../../services/solv-loader');
+import app from './app.ts';
+import { AddressInfo } from 'net';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-  
-    loader(id, function(event) {
-      var result = event.categories.map(function(category) {
-        return {
-          name: category.name,
-          distance: category.distance,
-          ascent: category.ascent,
-          controls: category.controls,
-          runners: category.runners.length
-        }
-      });
-    
-      res.json(result);
-    }, function(error) {
-      res.status(error.statusCode);
-      res.json(error);
-    });
-  };
-};
+const server = app.listen(8080, () => {
+  const address = server.address() as AddressInfo;
+  const host = address.address;
+  const port = address.port;
 
+  console.log('orienteering API server listening at http://%s:%s', host, port);
+});

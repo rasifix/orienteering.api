@@ -13,35 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var parseTime = require('../../services/time').parseTime;
+import { Request, Response } from 'express';
+import { parseTime } from '../services/time.ts';
+import { EventLoader } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
   
-    loader(id, function(event) {      
-      var result = { categories: [ ] };
+    loader(id, (event) => {      
+      const result: any = { categories: [] };
 
-      event.categories.forEach(function(category) {
-        var cat = { name: category.name, runners: [] };
+      event.categories.forEach((category) => {
+        const cat: any = { name: category.name, runners: [] };
         result.categories.push(cat);
 
-        var last = null;
-        var pos = 1;
-        var filtered = category.runners.filter(function(runner) { return parseTime(runner.time) !== null; });
-        filtered.forEach(function(runner, idx) {
+        let last: number | null = null;
+        let pos = 1;
+        const filtered = category.runners.filter((runner) => parseTime(runner.time) !== null);
+        filtered.forEach((runner, idx) => {
           if (last != null) {
-            if (parseTime(runner.time) > last) {
+            if ((parseTime(runner.time) ?? 0) > last) {
               pos = idx + 1;
             }
           }
-          var point = {
+          const point = {
             id: runner.id,
-            startTime: runner.startTime,
+            startTime: runner.starttime,
             time: runner.time,
             rank: pos,
             fullName: runner.fullName,
-            sex: runner.sex,
+            sex: (runner as any).sex,
             category: category.name
           };
           cat.runners.push(point);
@@ -50,6 +52,9 @@ module.exports = function(loader) {
       });
     
       res.json(result);
+    }, (error) => {
+      res.status(error.statusCode);
+      res.json(error);
     });
   };
-};
+}

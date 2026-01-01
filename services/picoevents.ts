@@ -13,21 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var axios = require("axios");
+import axios from 'axios';
 
-module.exports = function () {
+interface PicoEvent {
+  folder: string;
+  name: string;
+  date: string;
+  map: string;
+  organizer: string;
+  laststart: string;
+}
+
+interface PicoEventsResponse {
+  liveevents: PicoEvent[];
+}
+
+interface EventSummary {
+  id: string;
+  name: string;
+  date: string;
+  map: string;
+  club: string;
+  laststart: string;
+  source: string;
+  _link: string;
+}
+
+export default function picoEvents(): Promise<EventSummary[]> {
   return axios
-    .get("https://results.picoevents.ch/api/liveevents.php")
-    .then(function (response) {
+    .get<PicoEventsResponse>("https://results.picoevents.ch/api/liveevents.php")
+    .then((response) => {
       if (response.status !== 200) {
-        res.status(500);
-        res.json({ error: "backend server reported a problem" });
-        return;
+        throw new Error('backend server reported a problem');
       }
 
-      var json = response.data;
+      const json = response.data;
 
-      return json.liveevents.map(function (entry) {
+      return json.liveevents.map((entry) => {
         return {
           id: entry.folder,
           name: entry.name,

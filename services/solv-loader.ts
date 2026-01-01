@@ -13,43 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var axios = require('axios');
-var reformatTime = require('./time').reformatTime;
-var parseTime = require('./time').parseTime;
+import axios from 'axios';
+import { reformatTime, parseTime } from './time.ts';
+import { Event, Category, Runner, LoaderCallback, ErrorCallback } from '../types/index.ts';
 
-module.exports = function(id, callback, errorCallback) {
+const solvLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback): void => {
   axios.get('http://o-l.ch/cgi-bin/results?type=rang&kind=all&zwizt=1&csv=1&rl_id=' + id, {
     responseType: 'arraybuffer',
     responseEncoding: 'binary'
-  }).then(function(response) {
-    var body = response.data.toString('latin1');
+  }).then((response) => {
+    const body = response.data.toString('latin1');
 
     // interpret unknown event - SOLV does not properly do that for us...
     if (response.status === 404 || body.substring(0, 14) === '<!DOCTYPE html') {
       errorCallback({ 
         statusCode: 404,
         message: 'event with id ' + id + ' does not exist'
-      })
+      });
       return;
     }
     
     // convert CSV to JSON
-    var categories = { };
-    var result = {
+    const categories: { [key: string]: Category } = {};
+    const result: Event = {
       categories: []
     };
     
-    var lines = body.split('\n');
-    var header = lines.splice(0, 1)[0].split(';');
+    const lines = body.split('\n');
+    const header = lines.splice(0, 1)[0].split(';');
     
-    lines.forEach(function(line, idx) {
-      var tokens = line.split(';');
+    lines.forEach((line: string, idx: number) => {
+      const tokens = line.split(';');
       if (tokens.length < 11) {
         return;
       }
       
-      var name = tokens[0];
-      var category = categories[name];
+      const name = tokens[0];
+      let category = categories[name];
       if (!category) {
         category = {
           name: name,
@@ -57,44 +57,44 @@ module.exports = function(id, callback, errorCallback) {
           ascent: tokens[2],
           controls: parseInt(tokens[3]),
           runners: []
-        };
+        } as any;
         categories[name] = category;
         result.categories.push(category);
       }
       
-      var runner = {
+      const runner: Runner = {
         id: idx + 1,
         fullName: tokens[5],
-        yearOfBirth: tokens[6],
-        city: tokens[7],
-        club: tokens[8],
+        yearOfBirth: parseInt(tokens[6]) || undefined,
+        city: tokens[7] || undefined,
+        club: tokens[8] || undefined,
         time: reformatTime(tokens[9]),
-        startTime: tokens[10],
+        starttime: tokens[10],
         splits: []
       };
 
-      if ((tokens.length - 12) < category.controls * 2) {
+      if ((tokens.length - 12) < (category as any).controls * 2) {
         // some crappy SOLV data...
         console.log('fix crappy data from SOLV - not enough tokens on line for runner ' + runner.fullName);
-        for (var i = tokens.length; i < category.controls * 2 + 12; i++) {
+        for (let i = tokens.length; i < (category as any).controls * 2 + 12; i++) {
           if (i % 2 === 0) {
-            tokens[i] = category.runners.length === 0 ? '???' : category.runners[0].splits[(i - 12) / 2].code;
+            tokens[i] = category.runners.length === 0 ? '???' : category.runners[0].splits![(i - 12) / 2].code;
           } else {
             tokens[i] = '-';
           }
         }
       }
       
-      for (var i = 12; i < tokens.length - 1; i += 2) {
-        var time = reformatTime(tokens[i + 1]);
-        if (runner.splits.length > 0 && parseTime(time)) {
-          var prev = parseTime(runner.splits[runner.splits.length - 1]);
-          if (time === prev || tokens[i + 1] === '0.00' || parseTime(tokens[i + 1]) > 180 * 60) {
+      for (let i = 12; i < tokens.length - 1; i += 2) {
+        let time = reformatTime(tokens[i + 1]);
+        if (runner.splits && runner.splits.length > 0 && parseTime(time)) {
+          const prev = parseTime(runner.splits[runner.splits.length - 1].time);
+          if (time === String(prev) || tokens[i + 1] === '0.00' || (parseTime(tokens[i + 1]) ?? 0) > 180 * 60) {
             // normalize valid manual punches
             time = 's';
           }
         }
-        runner.splits.push({ code: tokens[i], time: time });
+        runner.splits!.push({ code: tokens[i], time: time });
       }
       
       category.runners.push(runner);
@@ -102,4 +102,6 @@ module.exports = function(id, callback, errorCallback) {
     
     callback(result);
   });
-}
+};
+
+export default solvLoader;

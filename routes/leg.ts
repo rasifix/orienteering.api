@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { formatTime, parseRanking, parseTime } from '@rasifix/orienteering-utils';
+import { Request, Response } from 'express';
+import { formatTime, ranking, parseTime } from '@rasifix/orienteering-utils';
+import { EventLoader, Category } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-    var legId = req.params.legId;
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    const legId = req.params.legId;
   
-    loader(id, function(event) {      
-      var legs = defineLegs(event.categories);
+    loader(id, (event) => {      
+      const legs = defineLegs(event.categories);
     
-      var leg = legs.find(function(leg) {
+      const leg = legs.find((leg) => {
         return leg.id === legId;
       });
         
@@ -33,16 +35,16 @@ module.exports = function(loader) {
       } else {
         res.json(leg);
       }    
-    }, function(error) {
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
-};
+}
 
-function defineLegs(categories) {
+function defineLegs(categories: Category[]) {
   // helper function to create ranking entry for runner
-  var createRankingEntry = function(runner, category, splitTime) {
+  const createRankingEntry = (runner: any, category: string, splitTime: number) => {
     return {
       id: runner.id,
       fullName: runner.fullName,
@@ -54,27 +56,27 @@ function defineLegs(categories) {
     };
   };
   
-  var legs = { };
-  var lastSplit = null;
-  categories.forEach(function(category) {        
-    category.runners.forEach(function(runner) {
-      var lastTime = null;
-      var lastControl = 'St';
-      runner.splits.forEach(function(split) {
-        var control = split.code;
-        var time = split.time;
-        var code = lastControl + '-' + control;
+  const legs: any = {};
+  let lastSplit = null;
+  categories.forEach((category) => {        
+    category.runners.forEach((runner) => {
+      let lastTime: string | null = null;
+      let lastControl = 'St';
+      runner.splits!.forEach((split) => {
+        const control = split.code;
+        const time = split.time;
+        const code = lastControl + '-' + control;
         if (!legs[code]) {
           legs[code] = {
             id: code,
             from: lastControl,
             to: control,
-            categories: { },
+            categories: {},
             runners: []
           };
         }
-        if (isValid(time) && (lastTime == null || isValid(lastTime))) {
-          var splitTime = lastTime !== null ? parseTime(time) - parseTime(lastTime) : parseTime(time);
+        if (isValid(time) && (lastTime == null || isValid(lastTime))) {
+          const splitTime = lastTime !== null ? (parseTime(time) ?? 0) - (parseTime(lastTime) ?? 0) : (parseTime(time) ?? 0);
           legs[code].runners.push(createRankingEntry(runner, category.name, splitTime));
           legs[code].categories[category.name] = true;
           lastSplit = split;
@@ -87,11 +89,11 @@ function defineLegs(categories) {
   });
   
   // convert legs hash into array
-  var result = [];
-  Object.keys(legs).forEach(function(code) {
-    var leg = legs[code];
-    leg.runners.sort(function(s1, s2) {
-      return parseTime(s1.split) - parseTime(s2.split);
+  const result: any[] = [];
+  Object.keys(legs).forEach((code) => {
+    const leg = legs[code];
+    leg.runners.sort((s1: any, s2: any) => {
+      return (parseTime(s1.split) ?? 0) - (parseTime(s2.split) ?? 0);
     });
     leg.categories = Object.keys(leg.categories);
     leg.errorFrequency = Math.round(100 * 10 / leg.runners.length);    
@@ -99,36 +101,44 @@ function defineLegs(categories) {
   });
   result.sort(legSort);
   
-  var runners = { };
-  categories.forEach(function(c) {
-    var category = parseRanking(JSON.parse(JSON.stringify(c)));
-    category.runners.forEach(function(runner) {
+  const runners: any = {};
+  categories.forEach((c) => {
+    const runnersFormatted = c.runners.map(r => ({
+      ...r,
+      id: String(r.id),
+      category: c.name,
+      startTime: r.starttime || '',
+      yearOfBirth: r.yearOfBirth?.toString(),
+      splits: r.splits || []
+    }));
+    const categoryParsed = ranking.parseRanking(runnersFormatted);
+    categoryParsed.runners.forEach((runner: any) => {
       runners[runner.id] = runner;
     });
   });
   
-  result.forEach(function(leg) {
-    var timeLosses = 0;
+  result.forEach((leg) => {
+    let timeLosses = 0;
     
     // TODO: avoid defining legs without runners?!
-    var fastest = leg.runners.length > 0 ? parseTime(leg.runners[0].split) : 0;
+    const fastest = leg.runners.length > 0 ? (parseTime(leg.runners[0].split) ?? 0) : 0;
     
-    leg.runners.forEach(function(runner, idx) {
-      var r = runners[runner.id];
-      var s = r.splits.find(function(split) { return leg.id === split.leg; });
+    leg.runners.forEach((runner: any, idx: number) => {
+      const r = runners[runner.id];
+      const s = r.splits.find((split: any) => leg.id === split.leg);
       if (s && s.timeLoss) {
         timeLosses += 1;
         runner.timeLoss = s.timeLoss;
       }
       
       if (idx > 0) {
-        runner.splitBehind = '+' + formatTime(parseTime(runner.split) - fastest);
+        runner.splitBehind = '+' + formatTime((parseTime(runner.split) ?? 0) - fastest);
       }
       
       if (idx === 0) {
         runner.splitRank = 1;
       } else {
-        var prev = leg.runners[idx - 1];
+        const prev = leg.runners[idx - 1];
         if (prev.split === runner.split) {
           runner.splitRank = prev.splitRank;
         } else {
@@ -142,23 +152,23 @@ function defineLegs(categories) {
     }
   });
       
-  result.sort(function(l1, l2) {
+  result.sort((l1, l2) => {
     return l2.errorFrequency - l1.errorFrequency;
   });
   
   return result;
 }
 
-function isValid(value) {
+function isValid(value: string): boolean {
   return value !== '-' && value !== 's' && parseTime(value) !== null;
 }
 
-function legOrdinal(id) {
-  var split = id.split('-');
+function legOrdinal(id: string): number {
+  const split = id.split('-');
   return controlOrdinal(split[0]) * 1000 + controlOrdinal(split[1]);
 } 
 
-function controlOrdinal(id) {
+function controlOrdinal(id: string): number {
   if (id === 'St') {
     return -1000;
   } else if (id === 'Zi') {
@@ -168,6 +178,6 @@ function controlOrdinal(id) {
   }
 }
 
-function legSort(l1, l2) {
+function legSort(l1: any, l2: any): number {
   return legOrdinal(l1.id) - legOrdinal(l2.id);
 }

@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Request, Response } from 'express';
+import { EventLoader, Category } from '../types/index.ts';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-    loader(id, function(event) {
-      var courses = defineCourses(event.categories);
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    loader(id, (event) => {
+      const courses = defineCourses(event.categories);
     
       res.json(courses);
-    }, function(error) {
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
 }
 
-function defineCourses(categories) {
-  var groupedCategories = { };
-  categories.forEach(function(category) {
+function defineCourses(categories: Category[]) {
+  const groupedCategories: { [key: string]: Category[] } = {};
+  categories.forEach((category) => {
     if (category.runners.length === 0) {
       // category without runners are ignored
       return;
     }
 
     // find categories with identical courses
-    var controls = category.runners[0].splits.map(function(split) { return split.code; }).join('-');
+    const controls = category.runners[0].splits!.map((split) => split.code).join('-');
     if (!groupedCategories[controls]) {
       groupedCategories[controls] = [];
     }
@@ -45,21 +47,21 @@ function defineCourses(categories) {
   });
 
   // build courses
-  var courses = [];
-  Object.keys(groupedCategories).forEach(function(grouped) {
-    var cats = groupedCategories[grouped];
-    var id = cats.map(function(cat) { return cat.name; }).sort().join('-');
+  const courses: any[] = [];
+  Object.keys(groupedCategories).forEach((grouped) => {
+    const cats = groupedCategories[grouped];
+    const id = cats.map((cat) => cat.name).sort().join('-');
     courses.push({ 
       id: id,
       name: id,
-      distance: cats[0].distance,
-      ascent: cats[0].ascent,
-      controls: cats[0].controls,
-      runners: cats.reduce(function(prev, cat) { return prev + cat.runners.length}, 0)
-    })
+      distance: (cats[0] as any).distance,
+      ascent: (cats[0] as any).ascent,
+      controls: (cats[0] as any).controls,
+      runners: cats.reduce((prev, cat) => prev + cat.runners.length, 0)
+    });
   });
 
-  courses.sort(function(c1, c2) { 
+  courses.sort((c1, c2) => { 
     if (c1.id < c2.id) {
       return -1;
     } else if (c1.id > c2.id) {
