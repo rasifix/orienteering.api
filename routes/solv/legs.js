@@ -130,8 +130,9 @@ function defineLegs(categories) {
     
     if (leg.runners.length > 0) {
       leg.errorFrequency = Math.round(100 * timeLosses / leg.runners.length);
-      if (leg.errorFrequency > 50) {
+      if (leg.errorFrequency === 100) {
         console.log("leg " + leg.id + " has high error frequency: " + leg.errorFrequency + "%", timeLosses, leg.runners.length); 
+        
       }
     }
   });

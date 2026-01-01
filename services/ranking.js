@@ -314,11 +314,12 @@ module.exports.parseRanking = function(json) {
     
     runner.errorTime = 0;
     runner.splits.forEach(function(split) {
-      var errorFreeTime = Math.round(parseTime(split.split) * (split.perfidx / middle));
+      var splitTime = parseTime(split.split);
+      var errorFreeTime = Math.round(splitTime * (split.perfidx / middle));
       var errorThresholdPct = 1.2;
       var errorThreshold = 10;
-      if (parseTime(split.split) / errorFreeTime > errorThresholdPct && (parseTime(split.split) - errorFreeTime) > errorThreshold) {        
-        split.timeLoss = formatTime(parseTime(split.split) - errorFreeTime);
+      if (splitTime / errorFreeTime > errorThresholdPct && (splitTime - errorFreeTime) > errorThreshold) {        
+        split.timeLoss = formatTime(splitTime - errorFreeTime);
         runner.errorTime += parseTime(split.timeLoss);
       }
     });
