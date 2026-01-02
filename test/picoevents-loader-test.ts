@@ -37,15 +37,15 @@ describe("Live Events", () => {
       runner.splits!.length.should.equal(5);
 
       runner.splits![0].code.should.equal('53');
-      runner.splits![0].time.should.equal('0:20');
+      runner.splits![0].time!.should.equal('0:20');
       runner.splits![1].code.should.equal('60');
-      runner.splits![1].time.should.equal('1:19');
+      runner.splits![1].time!.should.equal('1:19');
       runner.splits![2].code.should.equal('58');
-      runner.splits![2].time.should.equal('2:26');
+      runner.splits![2].time!.should.equal('2:26');
       runner.splits![3].code.should.equal('50');
-      runner.splits![3].time.should.equal('4:43');
+      runner.splits![3].time!.should.equal('4:43');
       runner.splits![4].code.should.equal('Zi');
-      runner.splits![4].time.should.equal('4:58');
+      runner.splits![4].time!.should.equal('4:58');
     });
   });
 });

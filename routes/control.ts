@@ -75,7 +75,7 @@ function defineControl(categories: Category[], id: string) {
       ...r,
       id: String(r.id),
       category: cat.name,
-      startTime: r.starttime || '',
+      startTime: r.startTime || '',
       yearOfBirth: r.yearOfBirth?.toString(),
       splits: r.splits || []
     }));

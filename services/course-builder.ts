@@ -33,10 +33,12 @@ export interface CourseDetail extends CourseBase {
   runners: Runner[];
 }
 
-interface CategoryWithCourseInfo extends Category {
+interface CategoryWithCourseInfo {
+  name: string;
   distance?: number;
   ascent?: number;
-  controls?: number;
+  controls: number;
+  runners: Runner[];
 }
 
 /**
@@ -117,7 +119,7 @@ export function buildCourseDetails(categories: Category[]): CourseDetail[] {
           cat.runners.map((runner) => {
             return {
               id: "" + ++idx,
-              startTime: runner.starttime,
+              startTime: runner.startTime,
               yearOfBirth: runner.yearOfBirth,
               time: runner.time,
               splits: runner.splits,

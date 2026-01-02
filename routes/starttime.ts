@@ -53,7 +53,7 @@ export default function(loader: EventLoader) {
           }
           const point = {
             id: runner.id,
-            startTime: runner.starttime!,
+            startTime: runner.startTime!,
             time: runner.time!,
             rank: pos,
             fullName: runner.fullName,

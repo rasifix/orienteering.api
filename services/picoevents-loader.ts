@@ -14,98 +14,15 @@
  * limitations under the License.
  */
 import axios from 'axios';
-import { formatTime } from './time.ts';
+import { formats } from '@rasifix/orienteering-utils';
+import { Competition } from '@rasifix/orienteering-utils/lib/model/competition';
 import picoEvents from './picoevents.ts';
-import { Event, Category, Runner, LoaderCallback, ErrorCallback } from '../types/index.ts';
+import { LoaderCallback, ErrorCallback } from '../types/index.ts';
 
-function clean(value: string | undefined): string | undefined {
-  if (value) {
-    return value.startsWith('"') && value.endsWith('"')
-      ? value.substring(1, value.length - 1)
-      : value;
-  }
-  return value;
-}
-
-function parseCsv(body: string): Event {
-  // convert CSV to JSON
-  const categories: { [key: string]: Category } = {};
-  const result: Event = {
-    categories: [],
-  };
-
-  const lines = body.split(/\r?\n/);
-  const eventHeader = lines.splice(0, 1);
-
-  const header = lines.splice(0, 1)[0].split(",");
-
-  const sortKeyIdx = header.indexOf("[SORTKEY]");
-  const statusIdx = header.indexOf("[IOFRESSTATTEXT]");
-  const startTimeIdx = header.indexOf("[STARTFULLPREC]");
-  const noOfSplitsIdx = header.indexOf("[NOFSPLITS]");
-  const termIdx = header.indexOf("[TERM]");
-  const firstNameIdx = header.indexOf("[FIRSTNAME]");
-  const familyNameIdx = header.indexOf("[FAMILYNAME]");
-  const yobIdx = header.indexOf("[YOB]");
-  const townIdx = header.indexOf("[TOWN]");
-  const clubIdx = header.indexOf("[CLUB]");
-  const runtimeNetIdx = header.indexOf("[RUNTIMENET]");
-
-  lines.forEach((line, idx) => {
-    const tokens = line.split(",");
-    if (tokens.length < 50) {
-      return;
-    }
-
-    const name = tokens[9];
-
-    if (name.indexOf("TW") !== -1 || name.indexOf("TM") !== -1) {
-      return;
-    }
-
-    let category = categories[name];
-    if (!category) {
-      category = {
-        name: name,
-        distance: 0,
-        ascent: 0,
-        controls: parseInt(tokens[noOfSplitsIdx]),
-        runners: [],
-      } as any;
-      categories[name] = category;
-      result.categories.push(category);
-    }
-
-    const status = tokens[statusIdx];
-    if (status !== "OK") {
-      return;
-    }
-
-    const startTime = parseInt(tokens[startTimeIdx]);
-    const runner: Runner = {
-      id: tokens[sortKeyIdx] || "0",
-      fullName:
-        clean(tokens[firstNameIdx]) + " " + clean(tokens[familyNameIdx]),
-      yearOfBirth: parseInt(tokens[yobIdx]) || undefined,
-      city: clean(tokens[townIdx]),
-      club: clean(tokens[clubIdx]),
-      time: formatTime(parseInt(tokens[runtimeNetIdx])),
-      starttime: formatTime(startTime),
-      splits: [],
-    };
-
-    for (let i = termIdx + 3; i < tokens.length - 2; i += 2) {
-      const time = tokens[i + 1]
-        ? formatTime(parseInt(tokens[i + 1]) - startTime)
-        : "";
-      const code = tokens[i] === "9999" ? "Zi" : tokens[i];
-      runner.splits!.push({ code, time: time });
-    }
-
-    category.runners.push(runner);
-  });
-
-  return result;
+function parseCsv(body: string): Competition {
+  // Use library's OwareFormat parser (PicoEvents uses Oware format)
+  const parser = new formats.oware.OwareFormat();
+  return parser.parse(body);
 }
 
 const loadLiveEvents = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback): void => {

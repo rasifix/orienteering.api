@@ -29,7 +29,7 @@ export interface Leg {
 export interface LegRunner {
   id: string;
   fullName: string;
-  yearOfBirth?: number;
+  yearOfBirth?: number | string;
   city?: string;
   club?: string;
   split: string;
@@ -82,7 +82,7 @@ export function buildDetailedLegs(categories: Category[]): Leg[] {
       let lastControl = 'St';
       runner.splits!.forEach((split) => {
         const control = split.code;
-        const time = split.time;
+        const time = split.time || '';
         const code = lastControl + '-' + control;
         if (!legs[code]) {
           legs[code] = {
@@ -126,7 +126,7 @@ export function buildDetailedLegs(categories: Category[]): Leg[] {
       ...r,
       id: String(r.id),
       category: c.name,
-      startTime: r.starttime || '',
+      startTime: r.startTime || '',
       yearOfBirth: r.yearOfBirth?.toString(),
       splits: r.splits || []
     }));

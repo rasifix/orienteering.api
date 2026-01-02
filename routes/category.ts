@@ -39,7 +39,7 @@ export default function (loader: EventLoader) {
           ...r,
           id: String(r.id),
           category: category.name,
-          startTime: r.starttime || "",
+          startTime: r.startTime || "",
           yearOfBirth: r.yearOfBirth?.toString(),
           splits: r.splits || [],
         }));

@@ -627,36 +627,6 @@ components:
           items:
             $ref: '#/components/schemas/Control'
 
-    CourseSummary:
-      type: object
-      description: Summary of a course
-      properties:
-        name:
-          type: string
-          description: Course name
-        length:
-          type: number
-          description: Course length in meters
-        climb:
-          type: number
-          description: Total climb in meters
-        controlCount:
-          type: number
-          description: Number of controls
-
-    Control:
-      type: object
-      description: Control point on a course
-      properties:
-        code:
-          type: string
-          description: Control code
-          example: "31"
-        order:
-          type: number
-          description: Position in course sequence
-          example: 1
-
     Leg:
       type: object
       description: Course segment between two controls

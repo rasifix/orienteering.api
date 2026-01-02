@@ -14,74 +14,8 @@
  * limitations under the License.
  */
 import { Request, Response } from "express";
-import axios from "axios";
+import solvEvents, { Event } from "../services/solv-events.ts";
 import picoEvents from "../services/picoevents.ts";
-
-interface SolvEvent {
-  ResultListID: string;
-  EventName: string;
-  EventDate: string;
-  EventMap: string;
-  EventClub: string;
-  SubTitle?: string;
-  ResultType: number;
-}
-
-interface SolvResponse {
-  ResultLists: SolvEvent[];
-}
-
-interface Event {
-  id: string;
-  name: string;
-  subtitle?: string;
-  date: string;
-  map: string;
-  club: string;
-  source: string;
-  _link: string;
-}
-
-function solvEvents(year: number) {
-  return axios
-    .get<SolvResponse>("https://o-l.ch/cgi-bin/fixtures", {
-      params: {
-        mode: "results",
-        year: year,
-        json: 1,
-      },
-    })
-    .then((response) => {
-      if (response.status !== 200) {
-        throw new Error("backend server reported a problem");
-      }
-
-      const json = response.data;
-      return json["ResultLists"]
-        .filter((entry) => {
-          return entry["EventMap"];
-        })
-        .filter((entry) => {
-          return entry["ResultType"] === 0;
-        })
-        .map((entry) => {
-          const row: Event = {
-            id: entry["ResultListID"],
-            name: entry["EventName"],
-            date: entry["EventDate"],
-            map: entry["EventMap"],
-            club: entry["EventClub"],
-            source: "solv",
-            _link:
-              "http://ol.zimaa.ch/api/events/solv/" + entry["ResultListID"],
-          };
-          if (entry["SubTitle"]) {
-            row.subtitle = entry["SubTitle"];
-          }
-          return row;
-        });
-    });
-}
 
 export default function (req: Request, res: Response) {
   const year = parseInt(req.query.year as string) || new Date().getFullYear();

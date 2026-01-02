@@ -13,52 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Competition } from '@rasifix/orienteering-utils/lib/model/competition';
+import { Category } from '@rasifix/orienteering-utils/lib/model/category';
+import { Runner } from '@rasifix/orienteering-utils/lib/model/runner';
+import { Split } from '@rasifix/orienteering-utils/lib/model/split';
 
-// Domain Models
-export interface Runner {
-  id: string;
-  fullName: string;
-  yearOfBirth?: number;
-  city?: string;
-  club?: string;
-  ranking?: string;
-  time?: string;
-  splits?: Split[];
-  sex?: Sex;
-  starttime?: string;
-}
-
-export enum Sex {
-    'male' = 'm',  
-    'female' = 'f'
-}
-
-export interface Split {
-  code: string;
-  time: string;
-}
-
-export interface Category {
-  name: string;
-  shortName?: string;
-  runners: Runner[];
-  course?: Course;
-  distance?: number;
-  ascent?: number;
-  controls?: number;
-}
-
-export interface Course {
-  name: string;
-  length?: number;
-  climb?: number;
-  controls: Control[];
-}
-
-export interface Control {
-  code: string;
-  order: number;
-}
+// Re-export library types
+export { Competition, Category, Runner, Split };
 
 export interface Leg {
   from: string;
@@ -76,20 +37,12 @@ export interface RankingEntry {
   category: string;
 }
 
-export interface Event {
-  id?: string;
-  name?: string;
-  date?: string;
-  location?: string;
-  categories: Category[];
-}
-
 export interface ApiError {
   statusCode: number;
   message: string;
 }
 
 // Callback Types
-export type LoaderCallback = (event: Event) => void;
+export type LoaderCallback = (event: Competition) => void;
 export type ErrorCallback = (error: ApiError) => void;
 export type EventLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback) => void;
