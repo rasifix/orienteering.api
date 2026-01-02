@@ -283,8 +283,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: true
+                $ref: '#/components/schemas/StartTimeResponse'
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
@@ -726,6 +725,72 @@ components:
           type: string
           description: Time lost compared to expected pace
           example: "00:00:30"
+
+    StartTimeResponse:
+      type: object
+      description: Start time data for all categories in an event
+      required:
+        - categories
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/StartTimeCategory'
+
+    StartTimeCategory:
+      type: object
+      description: Start time data for a specific category
+      required:
+        - name
+        - runners
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "H21E"
+        runners:
+          type: array
+          items:
+            $ref: '#/components/schemas/StartTimeRunner'
+
+    StartTimeRunner:
+      type: object
+      description: Runner's start time and result information
+      required:
+        - id
+        - startTime
+        - time
+        - rank
+        - fullName
+      properties:
+        id:
+          type: string
+          description: Runner identifier
+          example: "12345"
+        startTime:
+          type: string
+          description: Start time (HH:MM:SS)
+          example: "10:30:00"
+        time:
+          type: string
+          description: Total time (HH:MM:SS)
+          example: "01:15:42"
+        rank:
+          type: number
+          description: Rank in category
+          example: 5
+        fullName:
+          type: string
+          description: Full name of runner
+          example: "John Doe"
+        sex:
+          type: string
+          description: Gender
+          example: "M"
+        category:
+          type: string
+          description: Category name
+          example: "H21E"
 
     ApiError:
       type: object
