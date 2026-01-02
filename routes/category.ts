@@ -13,43 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Request, Response } from 'express';
-import { ranking } from '@rasifix/orienteering-utils';
-import { EventLoader } from '../types/index.ts';
+import { Request, Response } from "express";
+import { ranking } from "@rasifix/orienteering-utils";
+import { EventLoader } from "../types/index.ts";
 
-export default function(loader: EventLoader) {
+export default function (loader: EventLoader) {
   return (req: Request, res: Response) => {
     const id = req.params.id;
     const categoryId = req.params.categoryId;
-  
-    loader(id, (event) => {      
-      const category = event.categories.find((category) => {
-        return category.name === categoryId;
-      });
-        
-      if (!category) {
-        res.status(404);
-        res.json({ message: 'category ' + categoryId + ' does not exist!' });
-      } else {
-        const runnersFormatted = category.runners.map(r => ({
+
+    loader(
+      id,
+      (event) => {
+        const category = event.categories.find((category) => {
+          return category.name === categoryId;
+        });
+
+        if (!category) {
+          res.status(404);
+          res.json({ message: "category " + categoryId + " does not exist!" });
+          return;
+        }
+
+        const runnersFormatted = category.runners.map((r) => ({
           ...r,
           id: String(r.id),
           category: category.name,
-          startTime: r.starttime || '',
+          startTime: r.starttime || "",
           yearOfBirth: r.yearOfBirth?.toString(),
-          splits: r.splits || []
+          splits: r.splits || [],
         }));
         res.json({
           name: category.name,
           distance: (category as any).distance,
           ascent: (category as any).ascent,
           controls: (category as any).controls,
-          runners: ranking.parseRanking(runnersFormatted).runners
+          runners: ranking.parseRanking(runnersFormatted).runners,
         });
-      }    
-    }, (error) => {
-      res.status(error.statusCode);
-      res.json(error);
-    });
+      },
+      (error) => {
+        res.status(error.statusCode);
+        res.json(error);
+      }
+    );
   };
 }

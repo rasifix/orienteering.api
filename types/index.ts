@@ -43,6 +43,9 @@ export interface Category {
   shortName?: string;
   runners: Runner[];
   course?: Course;
+  distance?: number;
+  ascent?: number;
+  controls?: number;
 }
 
 export interface Course {
