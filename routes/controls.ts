@@ -111,8 +111,6 @@ function defineControls(categories: Category[]) {
             splitTime: formatTime((split.time ?? 0) - (runner.splits[idx - 1].time ?? 0)),
             timeLoss: split.timeLoss ? formatTime(split.timeLoss) : undefined
           });
-        } else {
-          console.warn("defineControls: cannot add runner " + runner.fullName + " to control " + split.code + " at category " + cat.name + " due to missing time", split.time, runner.splits[idx - 1]?.time);
         }
       });
     });      
@@ -136,7 +134,6 @@ function defineControls(categories: Category[]) {
       });
     });
     control.errorFrequency = Math.round(errors / total * 100);
-    console.log("control " + control.code + " has error frequency " + control.errorFrequency + "% (" + errors + "/" + total + ")");
     result.push(control);
   });
   result.sort((c1, c2) => {

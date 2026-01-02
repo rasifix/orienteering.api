@@ -34,6 +34,7 @@ export interface Event {
   name: string;
   subtitle?: string;
   date: string;
+  startTime?: string;
   map: string;
   club: string;
   source: string;
@@ -64,7 +65,7 @@ export default function solvEvents(year: number): Promise<Event[]> {
         })
         .map((entry) => {
           const row: Event = {
-            id: entry["ResultListID"],
+            id: "" + entry["ResultListID"],
             name: entry["EventName"],
             date: entry["EventDate"],
             map: entry["EventMap"],

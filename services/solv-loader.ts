@@ -16,6 +16,55 @@
 import axios from 'axios';
 import { formats } from '@rasifix/orienteering-utils';
 import { LoaderCallback, ErrorCallback } from '../types/index.ts';
+import solvEvents, { Event } from './solv-events.ts';
+
+// Cache for SOLV events metadata
+const eventsCache: { [year: number]: Event[] } = {};
+let lastCacheUpdate: { [year: number]: number } = {};
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+const getEventMetadata = (id: string, callback: (event: Event | null) => void): void => {
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear, currentYear - 1, currentYear + 1]; // Check current, previous, and next year
+  console.log("looking for SOLV event metadata for id " + id);
+  const checkYear = (yearIndex: number): void => {
+    if (yearIndex >= years.length) {
+      callback(null);
+      return;
+    }
+    
+    const year = years[yearIndex];
+    const now = Date.now();
+
+    // Check if cache is valid
+    if (eventsCache[year] && lastCacheUpdate[year] && (now - lastCacheUpdate[year] < CACHE_TTL)) {
+      const event = eventsCache[year].find(e => e.id === id);
+      if (event) {
+        callback(event);
+      } else {
+        checkYear(yearIndex + 1);
+      }
+      return;
+    }
+    
+    // Fetch events for this year
+    solvEvents(year).then((events) => {
+      eventsCache[year] = events;
+      lastCacheUpdate[year] = now;
+      
+      const event = events.find(e => e.id === id);
+      if (event) {
+        callback(event);
+      } else {
+        checkYear(yearIndex + 1);
+      }
+    }).catch(() => {
+      checkYear(yearIndex + 1);
+    });
+  };
+  
+  checkYear(0);
+};
 
 const solvLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback): void => {
   axios.get('http://o-l.ch/cgi-bin/results?type=rang&kind=all&zwizt=1&csv=1&rl_id=' + id, {
@@ -36,8 +85,19 @@ const solvLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCa
     // Use library's SolvFormat parser
     const parser = new formats.solv.SolvFormat();
     const competition = parser.parse(body);
-    
-    callback(competition);
+
+    // load and cache solv events and use that to enrich the competition data
+    getEventMetadata(id, (eventMetadata) => {
+      if (eventMetadata) {
+        // Enrich competition with metadata
+        competition.name = eventMetadata.name;
+        competition.date = eventMetadata.date;
+        competition.startTime = eventMetadata.startTime;
+        competition.map = eventMetadata.map;
+      }
+      
+      callback(competition);
+    });
   });
 };
 

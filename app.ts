@@ -55,6 +55,19 @@ app.get('/api/events/:id/controls/:controlId', (await import('./routes/control.t
 app.get('/api/events/:id/runners', (await import('./routes/runners.ts')).default(solv));
 app.get('/api/events/:id/starttime', (await import('./routes/starttime.ts')).default(solv));
 
+// solv
+app.get('/api/events/solv/:id', (await import('./routes/event.ts')).default(solv));
+app.get('/api/events/solv/:id/categories', (await import('./routes/categories.ts')).default(solv));
+app.get('/api/events/solv/:id/categories/:categoryId', (await import('./routes/category.ts')).default(solv));
+app.get('/api/events/solv/:id/courses', (await import('./routes/courses.ts')).default(solv));
+app.get('/api/events/solv/:id/courses/:courseId', (await import('./routes/course.ts')).default(solv));
+app.get('/api/events/solv/:id/legs', (await import('./routes/legs.ts')).default(solv));
+app.get('/api/events/solv/:id/legs/:legId', (await import('./routes/leg.ts')).default(solv));
+app.get('/api/events/solv/:id/controls', (await import('./routes/controls.ts')).default(solv));
+app.get('/api/events/solv/:id/controls/:controlId', (await import('./routes/control.ts')).default(solv));
+app.get('/api/events/solv/:id/runners', (await import('./routes/runners.ts')).default(solv));
+app.get('/api/events/solv/:id/starttime', (await import('./routes/starttime.ts')).default(solv));
+
 // picoevents
 app.get('/api/events/picoevents/:id', (await import('./routes/event.ts')).default(picoevents.loadLiveEvents));
 app.get('/api/events/picoevents/:id/categories', (await import('./routes/categories.ts')).default(picoevents.loadLiveEvents));
