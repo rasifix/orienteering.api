@@ -83,7 +83,7 @@ function parseCsv(body: string): Event {
 
     const startTime = parseInt(tokens[startTimeIdx]);
     const runner: Runner = {
-      id: parseInt(tokens[sortKeyIdx]) || 0,
+      id: tokens[sortKeyIdx] || "0",
       fullName:
         clean(tokens[firstNameIdx]) + " " + clean(tokens[familyNameIdx]),
       yearOfBirth: parseInt(tokens[yobIdx]) || undefined,

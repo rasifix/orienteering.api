@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Request, Response } from 'express';
-import axios from 'axios';
-import picoEvents from '../services/picoevents.ts';
+import { Request, Response } from "express";
+import axios from "axios";
+import picoEvents from "../services/picoevents.ts";
 
 interface SolvEvent {
   ResultListID: string;
@@ -31,6 +31,17 @@ interface SolvResponse {
   ResultLists: SolvEvent[];
 }
 
+interface Event {
+  id: string;
+  name: string;
+  subtitle?: string;
+  date: string;
+  map: string;
+  club: string;
+  source: string;
+  _link: string;
+}
+
 function solvEvents(year: number) {
   return axios
     .get<SolvResponse>("https://o-l.ch/cgi-bin/fixtures", {
@@ -42,7 +53,7 @@ function solvEvents(year: number) {
     })
     .then((response) => {
       if (response.status !== 200) {
-        throw new Error('backend server reported a problem');
+        throw new Error("backend server reported a problem");
       }
 
       const json = response.data;
@@ -54,7 +65,7 @@ function solvEvents(year: number) {
           return entry["ResultType"] === 0;
         })
         .map((entry) => {
-          const row: any = {
+          const row: Event = {
             id: entry["ResultListID"],
             name: entry["EventName"],
             date: entry["EventDate"],
@@ -75,8 +86,8 @@ function solvEvents(year: number) {
 export default function (req: Request, res: Response) {
   const year = parseInt(req.query.year as string) || new Date().getFullYear();
   Promise.all([solvEvents(year), picoEvents()]).then((resolved) => {
-    const events = [].concat(resolved[0] as any).concat(resolved[1] as any);
-    events.sort((e1: any, e2: any) => {
+    const events: Event[] = [...resolved[0], ...resolved[1]];
+    events.sort((e1: Event, e2: Event) => {
       return e2.date.localeCompare(e1.date);
     });
 

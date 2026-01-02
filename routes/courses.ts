@@ -16,6 +16,15 @@
 import { Request, Response } from 'express';
 import { EventLoader, Category } from '../types/index.ts';
 
+interface Course {
+  id: string;
+  name: string;
+  distance: number;
+  ascent: number;
+  controls: number;
+  runners: number;
+}
+
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {
     const id = req.params.id;
@@ -47,7 +56,7 @@ function defineCourses(categories: Category[]) {
   });
 
   // build courses
-  const courses: any[] = [];
+  const courses: Course[] = [];
   Object.keys(groupedCategories).forEach((grouped) => {
     const cats = groupedCategories[grouped];
     const id = cats.map((cat) => cat.name).sort().join('-');

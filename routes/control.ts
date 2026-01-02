@@ -16,6 +16,8 @@
 import { Request, Response } from 'express';
 import { ranking } from '@rasifix/orienteering-utils';
 import { EventLoader, Category } from '../types/index.ts';
+import { Split } from '@rasifix/orienteering-utils/lib/model/split';
+import runners from './runners.ts';
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {  
@@ -37,12 +39,29 @@ export default function(loader: EventLoader) {
   };
 }
 
+interface Control {
+  code: string;
+  runners: number;
+  errors: number;
+  categories: {[name: string]: { name: string; runners: number }};
+  from: { [code: string]: RelatedControl };
+  to: { [code: string]: RelatedControl };
+}
+
+interface RelatedControl {
+  code: string;
+  from?: string;
+  to?: string;
+  categories: string[];
+  runners: number;
+  errors: number;
+}
+
 function defineControl(categories: Category[], id: string) {
-  const legs: any = {};
-  const all: any = {};
-  
-  const control: any = { 
+  const control: Control = { 
     code: id,
+    runners: 0,
+    errors: 0,
     categories: {},
     from: {},
     to: {}
@@ -68,7 +87,7 @@ function defineControl(categories: Category[], id: string) {
     };
     
     const splits = cat.runners[0].splits!;
-    splits.forEach((split: any, idx: number) => {
+    splits.forEach((split: Split, idx: number) => {  
       if (split.code !== id) {
         return;
       }
@@ -78,7 +97,6 @@ function defineControl(categories: Category[], id: string) {
       if (!prev) {
         prev = control.from[prevId] = { 
           code: prevId, 
-          leg: prevId + '-' + id,
           categories: [],
           runners: 0,
           errors: 0
@@ -86,18 +104,17 @@ function defineControl(categories: Category[], id: string) {
       }
       prev.categories.push(cat.name);
       prev.runners += categoryParsed.runners.length;
-      prev.errors += categoryParsed.runners.map((runner: any) => { 
+      prev.errors += categoryParsed.runners.map((runner) => { 
         return runner.splits[idx];
-      }).filter((split: any) => split.timeLoss).reduce((prev: number, current: any) => {
-        return prev + 1;
-      }, 0);
+      }).filter((split) => split.timeLoss).length;
 
       const nextId = idx + 1 < splits.length ? splits[idx + 1].code : 'Zi';
       let next = control.to[nextId];
       if (!next) {
         next = control.to[nextId] = {
           code: nextId,
-          leg: id + '-' + nextId,
+          from: id,
+          to: nextId,
           categories: [],
           runners: 0,
           errors: 0
@@ -105,28 +122,32 @@ function defineControl(categories: Category[], id: string) {
       }
       next.categories.push(cat.name);
       next.runners += categoryParsed.runners.length;
-      next.errors += categoryParsed.runners.map((runner: any) => { 
+      next.errors += categoryParsed.runners.map((runner) => { 
         return runner.splits[idx];
-      }).filter((split: any) => split.timeLoss).reduce((prev: number, current: any) => {
-        return prev + 1;
-      }, 0);
-      
+      }).filter((split) => split.timeLoss).length;
     });    
   });
     
-  control.categories = Object.keys(control.categories).map((name) => control.categories[name]);
-  
-  control.from = Object.keys(control.from).map((code) => control.from[code]);
-  control.from.forEach((from: any) => {
-    from.categories = from.categories.sort((c1: string, c2: string) => c1.localeCompare(c2)).join(',');
-    from.errorFrequency = Math.round(100 * from.errors / from.runners);
-  });
-  
-  control.to = Object.keys(control.to).map((code) => control.to[code]);
-  control.to.forEach((to: any) => {
-    to.categories = to.categories.sort((c1: string, c2: string) => c1.localeCompare(c2)).join(',');
-    to.errorFrequency = Math.round(100 * to.errors / to.runners);
-  });
-  
-  return control;
+  return {
+    code: control.code,
+    categories: Object.keys(control.categories).map((name) => control.categories[name]),
+    from: Object.values(control.from).map((from) => ({
+      code: from.code,
+      leg: from.code + "-" + control.code,
+      from: from.code,
+      to: control.code,
+      categories: from.categories.sort((c1, c2) => c1.localeCompare(c2)),
+      errorFrequency: Math.round(100 * from.errors / from.runners),
+      runners: from.runners
+    })),
+    to: Object.values(control.to).map((to) => ({
+      code: to.code,
+      leg: control.code + "-" + to.code,
+      from: control.code,
+      to: to.code,
+      categories: to.categories.sort((c1, c2) => c1.localeCompare(c2)),
+      errorFrequency: Math.round(100 * to.errors / to.runners),
+      runners: to.runners
+    }))
+  };
 }

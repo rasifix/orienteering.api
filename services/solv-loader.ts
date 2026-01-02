@@ -63,7 +63,7 @@ const solvLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCa
       }
       
       const runner: Runner = {
-        id: idx + 1,
+        id: String(idx + 1),
         fullName: tokens[5],
         yearOfBirth: parseInt(tokens[6]) || undefined,
         city: tokens[7] || undefined,

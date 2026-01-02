@@ -16,17 +16,31 @@
 import { Request, Response } from 'express';
 import { parseTime } from '../services/time.ts';
 import { EventLoader } from '../types/index.ts';
+import categories from './categories.ts';
+
+interface Category {
+  name: string;
+  runners: DataPoint[];
+}
+
+interface DataPoint {
+  id: string;
+  startTime: string;
+  time: string;
+  rank: number;
+  fullName: string;
+}
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {
     const id = req.params.id;
   
     loader(id, (event) => {      
-      const result: any = { categories: [] };
+      const result: Category[] = [];
 
       event.categories.forEach((category) => {
-        const cat: any = { name: category.name, runners: [] };
-        result.categories.push(cat);
+        const cat: Category = { name: category.name, runners: [] };
+        result.push(cat);
 
         let last: number | null = null;
         let pos = 1;
@@ -39,11 +53,11 @@ export default function(loader: EventLoader) {
           }
           const point = {
             id: runner.id,
-            startTime: runner.starttime,
-            time: runner.time,
+            startTime: runner.starttime!,
+            time: runner.time!,
             rank: pos,
             fullName: runner.fullName,
-            sex: (runner as any).sex,
+            sex: runner.sex,
             category: category.name
           };
           cat.runners.push(point);
@@ -51,7 +65,7 @@ export default function(loader: EventLoader) {
         });
       });
     
-      res.json(result);
+      res.json({ categories: result });
     }, (error) => {
       res.status(error.statusCode);
       res.json(error);

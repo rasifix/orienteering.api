@@ -115,6 +115,8 @@ const runnersFormatted = category.runners.map(r => ({
 ### Development
 ```bash
 npm run dev              # Run with tsx (development mode)
+npm run lint             # Run ESLint to check code
+npm run lint:fix         # Run ESLint and auto-fix issues
 make test                # Run Mocha tests with ts-node/esm loader
 ```
 
@@ -317,6 +319,8 @@ describe('SOLV Loader', () => {
 - `typescript` 5.9.3 - TypeScript compiler
 - `tsx` - TypeScript execution for development (better ES module support)
 - `ts-node` 10.9.2 - TypeScript execution for tests
+- `eslint` - JavaScript/TypeScript linter
+- `typescript-eslint` - TypeScript ESLint plugin and parser
 - `@types/*` - Type definitions for libraries
 - `mocha` 11.0.1 - Test framework
 - `should` 13.2.3 - Assertion library

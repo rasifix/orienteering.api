@@ -16,7 +16,7 @@
 
 // Domain Models
 export interface Runner {
-  id: number | string;
+  id: string;
   fullName: string;
   yearOfBirth?: number;
   city?: string;
@@ -24,7 +24,13 @@ export interface Runner {
   ranking?: string;
   time?: string;
   splits?: Split[];
+  sex?: Sex;
   starttime?: string;
+}
+
+export enum Sex {
+    'male' = 'm',  
+    'female' = 'f'
 }
 
 export interface Split {

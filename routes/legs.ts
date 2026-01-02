@@ -15,7 +15,8 @@
  */
 import { Request, Response } from 'express';
 import { formatTime, ranking, parseTime } from '@rasifix/orienteering-utils';
-import { EventLoader, Category } from '../types/index.ts';
+import { EventLoader, Category, Runner } from '../types/index.ts';
+import { RankingRunner } from '@rasifix/orienteering-utils/lib/utils/ranking';
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {
@@ -31,9 +32,31 @@ export default function(loader: EventLoader) {
   };
 }
 
+interface Leg {
+  id: string;
+  from: string;
+  to: string;
+  categories: { [name: string]: boolean };
+  runners: LegRunner[];
+  errorFrequency: number;
+}
+
+interface LegRunner {
+  id: string;
+  fullName: string;
+  yearOfBirth?: number;
+  city?: string;
+  club?: string;
+  split: string;
+  splitBehind?: string;
+  splitRank?: number;
+  category: string;
+  timeLoss?: string;
+} 
+
 function defineLegs(categories: Category[]) {
   // helper function to create ranking entry for runner
-  const createRankingEntry = (runner: any, category: string, splitTime: number) => {
+  const createRankingEntry = (runner: Runner, category: string, splitTime: number) => {
     return {
       id: runner.id,
       fullName: runner.fullName,
@@ -45,7 +68,7 @@ function defineLegs(categories: Category[]) {
     };
   };
   
-  const legs: any = {};
+  const legs: { [key: string]: Leg } = {};
   let lastSplit = null;
   categories.forEach((category) => {        
     category.runners.forEach((runner) => {
@@ -61,6 +84,7 @@ function defineLegs(categories: Category[]) {
             from: lastControl,
             to: control,
             categories: {},
+            errorFrequency: 0,
             runners: []
           };
         }
@@ -78,21 +102,19 @@ function defineLegs(categories: Category[]) {
   });
   
   // convert legs hash into array
-  const result: any[] = [];
+  const result: Leg[] = [];
   Object.keys(legs).forEach((code) => {
     const leg = legs[code];
-    leg.runners.sort((s1: any, s2: any) => {
+    leg.runners.sort((s1: LegRunner, s2: LegRunner) => {
       return (parseTime(s1.split) ?? 0) - (parseTime(s2.split) ?? 0);
     });
-    leg.categories = Object.keys(leg.categories);
     leg.errorFrequency = 0;
     if (leg.runners.length > 0) {
       result.push(leg);
     }
   });
-  result.sort(legSort);
   
-  const runners: any = {};
+  const runners: { [id: string]: RankingRunner } = {};
   categories.forEach((c) => {
     const runnersFormatted = c.runners.map(r => ({
       ...r,
@@ -103,7 +125,7 @@ function defineLegs(categories: Category[]) {
       splits: r.splits || []
     }));
     const categoryParsed = ranking.parseRanking(runnersFormatted);
-    categoryParsed.runners.forEach((runner: any) => {
+    categoryParsed.runners.forEach((runner) => {
       runners[runner.id] = runner;
     });
   });
@@ -112,12 +134,12 @@ function defineLegs(categories: Category[]) {
     let timeLosses = 0;
     const fastest = leg.runners.length > 0 ? (parseTime(leg.runners[0].split) ?? 0) : 0;
     
-    leg.runners.forEach((runner: any, idx: number) => {
+    leg.runners.forEach((runner, idx: number) => {
       const r = runners[runner.id];
-      const s = r.splits.find((split: any) => leg.id === split.leg);
+      const s = r.splits.find((split) => leg.id === split.legCode);
       if (s && s.timeLoss) {
         timeLosses += 1;
-        runner.timeLoss = s.timeLoss;
+        runner.timeLoss = formatTime(s.timeLoss);
       }
       
       if (idx > 0) {
@@ -138,9 +160,6 @@ function defineLegs(categories: Category[]) {
     
     if (leg.runners.length > 0) {
       leg.errorFrequency = Math.round(100 * timeLosses / leg.runners.length);
-      if (leg.errorFrequency === 100) {
-        console.log("leg " + leg.id + " has high error frequency: " + leg.errorFrequency + "%", timeLosses, leg.runners.length); 
-      }
     }
   });
       
@@ -153,7 +172,7 @@ function defineLegs(categories: Category[]) {
       id: leg.id,
       from: leg.from,
       to: leg.to,
-      categories: leg.categories,
+      categories: Object.keys(leg.categories),
       runners: leg.runners.length,
       errorFrequency: leg.errorFrequency
     };
@@ -162,23 +181,4 @@ function defineLegs(categories: Category[]) {
 
 function isValid(value: string): boolean {
   return value !== '-' && value !== 's' && parseTime(value) !== null;
-}
-
-function legOrdinal(id: string): number {
-  const split = id.split('-');
-  return controlOrdinal(split[0]) * 1000 + controlOrdinal(split[1]);
-} 
-
-function controlOrdinal(id: string): number {
-  if (id === 'St') {
-    return -1000;
-  } else if (id === 'Zi') {
-    return 1000;
-  } else {
-    return parseInt(id, 10);
-  }
-}
-
-function legSort(l1: any, l2: any): number {
-  return legOrdinal(l1.id) - legOrdinal(l2.id);
 }

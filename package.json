@@ -8,7 +8,9 @@
     "build": "tsc",
     "dev": "tsx index.ts",
     "start": "node dist/index.js",
-    "test": "make test"
+    "test": "make test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "orienteering",
@@ -28,6 +30,7 @@
     "sanitize-filename": "~1.5.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/basic-auth": "^1.1.8",
     "@types/body-parser": "^1.19.6",
     "@types/compression": "^1.8.1",
@@ -39,12 +42,14 @@
     "@types/should": "^11.2.0",
     "@types/supertest": "^6.0.3",
     "axios-mock-adapter": "^2.1.0",
+    "eslint": "^9.39.2",
     "mocha": "^11.7.4",
     "nock": "^14.0.10",
     "should": "~7.0.2",
     "supertest": "^3.3.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0"
   }
 }

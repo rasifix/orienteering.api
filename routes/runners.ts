@@ -32,7 +32,7 @@ export default function(loader: EventLoader) {
 }
 
 function defineRunners(categories: Category[]) {
-  const arrayOfArray = categories.map((category) => {
+  const runners = categories.flatMap((category) => {
     return category.runners.map((runner) => {
       return {
         id: runner.id,
@@ -45,8 +45,7 @@ function defineRunners(categories: Category[]) {
     });
   });
    
-  const runners: any[] = [];
-  return runners.concat.apply(runners, arrayOfArray).sort((r1, r2) => {
+  return runners.sort((r1, r2) => {
     return r1.fullName.localeCompare(r2.fullName);
   });
 }

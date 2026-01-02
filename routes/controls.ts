@@ -15,7 +15,27 @@
  */
 import { Request, Response } from 'express';
 import { formatTime, parseTime, ranking } from '@rasifix/orienteering-utils';
-import { EventLoader, Category } from '../types/index.ts';
+import { Category, EventLoader, Runner } from '../types/index.ts';
+
+interface Control {
+  code: string;
+  errorFrequency: number;
+  categories: { [name: string]: ControlCategory };
+  runners: { [id: string]: Runner }[];
+}
+
+interface ControlCategory {
+  name: string;
+  runners: ControlRunner[];
+  from: string;
+  to: string;
+}
+
+interface ControlRunner {
+  fullName: string;
+  splitTime: string;
+  timeLoss?: string;
+}
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {
@@ -31,8 +51,8 @@ export default function(loader: EventLoader) {
 }
 
 function defineControls(categories: Category[]) {
-  const legs: any = {};
-  const all: any = {};
+  const legs: { [key: string]: { source: string; target: string } } = {};
+  const all: {[code: string]: Control} = {};
 
   categories.filter((cat) => cat.runners.length > 0).forEach((cat) => {
     const runnersFormatted = cat.runners.map(r => ({
@@ -45,7 +65,7 @@ function defineControls(categories: Category[]) {
     }));
     const categoryParsed = ranking.parseRanking(runnersFormatted);
     
-    categoryParsed.runners[0].splits.forEach((split: any, idx: number) => {
+    categoryParsed.runners[0].splits.forEach((split, idx: number) => {
       if (idx === 0) {
         legs['St-' + split.code] = { source: 'St', target: split.code };
       } else if (idx <= categoryParsed.runners[0].splits.length - 1) {
@@ -54,12 +74,14 @@ function defineControls(categories: Category[]) {
       }         
     });
     
-    categoryParsed.runners.forEach((runner: any) => {
-      runner.splits.forEach((split: any, idx: number) => {
+    categoryParsed.runners.forEach((runner) => {
+      runner.splits.forEach((split, idx) => {
         if (!all[split.code]) {
           all[split.code] = { 
             code: split.code,
-            categories: {}
+            categories: {},
+            errorFrequency: 0,
+            runners: []
           };
         }
                   
@@ -77,57 +99,55 @@ function defineControls(categories: Category[]) {
         
         const catObj = control.categories[cat.name];
         
-        if (idx === 0 && parseTime(split.time)) {  
+        if (idx === 0 && split.time) {  
           catObj.runners.push({
             fullName: runner.fullName,
-            splitTime: split.time,
-            timeLoss: split.timeLoss
+            splitTime: formatTime(split.time),
+            timeLoss: split.timeLoss ? formatTime(split.timeLoss) : undefined
           });
-        } else if (idx > 0 && parseTime(split.time) && parseTime(runner.splits[idx - 1].time)) {
+        } else if (idx > 0 && split.time && runner.splits[idx - 1].time) {
           catObj.runners.push({
             fullName: runner.fullName,
-            splitTime: formatTime((parseTime(split.time) ?? 0) - (parseTime(runner.splits[idx - 1].time) ?? 0)),
-            timeLoss: split.timeLoss
+            splitTime: formatTime((split.time ?? 0) - (runner.splits[idx - 1].time ?? 0)),
+            timeLoss: split.timeLoss ? formatTime(split.timeLoss) : undefined
           });
+        } else {
+          console.warn("defineControls: cannot add runner " + runner.fullName + " to control " + split.code + " at category " + cat.name + " due to missing time", split.time, runner.splits[idx - 1]?.time);
         }
       });
     });      
   });
   
-  const result: any[] = [];
+  const result: Control[] = [];
   Object.keys(all).forEach((code) => {
     const control = all[code];
-    control.categories = Object.keys(control.categories).map((name) => {
-      return control.categories[name];
-    });
     let errors = 0;
     let total = 0;
-    control.categories.forEach((category: any) => {
-      category.runners.sort((r1: any, r2: any) => {
+    const cats = Object.values(control.categories);
+    cats.forEach((category) => {
+      category.runners.sort((r1, r2) => {
         return (parseTime(r1.splitTime) ?? 0) - (parseTime(r2.splitTime) ?? 0);
       });
       total += category.runners.length;
-      category.runners.forEach((runner: any) => {
+      category.runners.forEach((runner) => {
         if (runner.timeLoss) {
           errors += 1;
         }
       });
     });
-    control.runners = control.categories.map((category: any) => category.runners.length).reduce((r1: number, r2: number) => r1 + r2);
     control.errorFrequency = Math.round(errors / total * 100);
-    control.cats = control.categories.map((cat: any) => cat.name).join(',');
+    console.log("control " + control.code + " has error frequency " + control.errorFrequency + "% (" + errors + "/" + total + ")");
     result.push(control);
   });
   result.sort((c1, c2) => {
     return c2.errorFrequency - c1.errorFrequency;
   });
-  
   return result.map((control) => {
     return {
       code: control.code,
       errorFrequency: control.errorFrequency,
-      categories: control.categories.map((category: any) => category.name),
-      runners: control.categories.reduce((acc: number, current: any) => acc + current.runners.length, 0)
+      categories: Object.values(control.categories).map((category) => category.name),
+      runners: Object.values(control.categories).reduce((acc, current) => acc + current.runners.length, 0)
     };
   });
 }
