@@ -39,7 +39,7 @@ interface EventSummary {
   _link: string;
 }
 
-export default function picoEvents(): Promise<EventSummary[]> {
+export default function picoEvents(year: number | null): Promise<EventSummary[]> {
   return axios
     .get<PicoEventsResponse>("https://results.picoevents.ch/api/liveevents.php")
     .then((response) => {
@@ -60,6 +60,8 @@ export default function picoEvents(): Promise<EventSummary[]> {
           source: "picoevents",
           _link: "http://ol.zimaa.ch/api/events/picoevents/" + entry.folder,
         };
+      }).filter((event) => {
+        return year === null || event.date.startsWith(year.toString());
       });
     });
 }

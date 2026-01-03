@@ -19,7 +19,7 @@ import picoEvents from "../services/picoevents.ts";
 
 export default function (req: Request, res: Response) {
   const year = parseInt(req.query.year as string) || new Date().getFullYear();
-  Promise.all([solvEvents(year), picoEvents()]).then((resolved) => {
+  Promise.all([solvEvents(year), picoEvents(year)]).then((resolved) => {
     const events: Event[] = [...resolved[0], ...resolved[1]];
     events.sort((e1: Event, e2: Event) => {
       return e2.date.localeCompare(e1.date);

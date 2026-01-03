@@ -25,7 +25,7 @@ function parseCsv(body: string): Competition {
 }
 
 const loadLiveEvents = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback): void => {
-  picoEvents().then((events) => {
+  picoEvents(null).then((events) => {
     const event = events.find((ev) => {
       return ev.id == id;
     });
