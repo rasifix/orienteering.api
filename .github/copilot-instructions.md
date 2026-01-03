@@ -11,7 +11,7 @@ This is a TypeScript-based Express.js REST API that provides access to orienteer
 - **Web Framework**: Express.js 4.21.2
 - **HTTP Client**: Axios 1.7.9
 - **Testing**: Mocha with ts-node/esm loader
-- **Utilities**: @rasifix/orienteering-utils 2.0.42 (includes TypeScript definitions)
+- **Utilities**: @rasifix/orienteering-utils 2.0.40 (includes TypeScript definitions)
 
 ### Module Resolution
 - **TypeScript Compiler**: `moduleResolution: "bundler"` with `allowImportingTsExtensions: true`, `noEmit: true`
@@ -25,9 +25,10 @@ This is a TypeScript-based Express.js REST API that provides access to orienteer
 Located in `services/` directory:
 - **solv-loader.ts**: Fetches CSV data from o-l.ch (SOLV), parses into Event structure
 - **picoevents-loader.ts**: Fetches live results from PicoEvents API, exports `loadLiveEvents` function
-- **local-loader.ts**: Loads events from local API (api.zimaa.ch)
 - **picoevents.ts**: Fetches event list from PicoEvents
+- **solv-events.ts**: Fetches event metadata from SOLV event listings
 - **time.ts**: Utility functions for time formatting/parsing (`reformatTime`, `parseTime`, `formatTime`)
+- **control-builder.ts**, **course-builder.ts**, **leg-builder.ts**: Builder utilities for transforming event data
 
 All loaders follow the **callback-based async pattern**:
 ```typescript
@@ -84,7 +85,7 @@ Located in `types/index.ts`:
   - Compression middleware
   - Cache middleware (1 day TTL for GET requests on `/api/events`)
   - Top-level await for dynamic route imports
-  - Basic auth middleware for upload endpoints
+  - Error handling middleware
 
 ## Data Flow
 
@@ -179,6 +180,8 @@ const event = await loaderPromise(id);
 
 ### Error Handling
 - Use callback pattern with `errorCallback({ statusCode, message })`
+- **CRITICAL**: All promise chains (axios requests, Promise.all, etc.) MUST have `.catch()` handlers
+- `.catch()` handlers should invoke `errorCallback` with appropriate status codes
 - Express error middleware in [app.ts](app.ts#L84-L90) catches uncaught errors
 - Return 404 for missing resources, 500 for server errors
 
@@ -248,7 +251,6 @@ const result = ranking.parseRanking(runnersFormatted);
 The API connects to external services:
 - **SOLV**: `http://o-l.ch/cgi-bin/results` (CSV endpoint)
 - **PicoEvents**: `http://www.picoevents.ch` (CSV endpoint)
-- **Local API**: `http://api.zimaa.ch` (JSON endpoint)
 
 ### Local Event Storage
 Events can be stored locally in `data/` directory as JSON files:
@@ -313,7 +315,7 @@ describe('SOLV Loader', () => {
 - `express` 4.21.2 - Web framework
 - `axios` 1.7.9 - HTTP client
 - `compression` 1.7.5 - Response compression
-- `@rasifix/orienteering-utils` 2.0.42 - Orienteering utilities (ranking, time formatting)
+- `@rasifix/orienteering-utils` 2.0.40 - Orienteering utilities (ranking, time formatting)
 
 ### Development
 - `typescript` 5.9.3 - TypeScript compiler
