@@ -45,9 +45,9 @@ export default function (loader: EventLoader) {
         }));
         res.json({
           name: category.name,
-          distance: (category as any).distance,
-          ascent: (category as any).ascent,
-          controls: (category as any).controls,
+          distance: category.distance,
+          ascent: category.ascent,
+          controls: category.controls,
           runners: ranking.parseRanking(runnersFormatted).runners,
         });
       },
