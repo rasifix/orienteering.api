@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import { Request, Response } from 'express';
-import { parseTime } from '../services/time';
+import { parseTime } from '@rasifix/orienteering-utils';
 import { EventLoader } from '../types/index';
-import categories from './categories';
+import { Sex } from '@rasifix/orienteering-utils/lib/model';
 
 // Regex to validate time format (e.g., 12:25 or 1:25:13)
 const TIME_FORMAT_REGEX = /^\d{1,2}:\d{1,2}(:\d{2})?$/;
@@ -31,6 +31,8 @@ interface DataPoint {
   startTime: string;
   time: string;
   rank: number;
+  sex: Sex | undefined;
+  category: string;
   fullName: string;
 }
 
@@ -45,7 +47,7 @@ export default function(loader: EventLoader) {
         const cat: Category = { name: category.name, runners: [] };
         result.push(cat);
 
-        let last: number | null = null;
+        let last: number | undefined;
         let pos = 1;
         const filtered = category.runners.filter((runner) => 
           runner.time && TIME_FORMAT_REGEX.test(runner.time)
@@ -56,7 +58,7 @@ export default function(loader: EventLoader) {
               pos = idx + 1;
             }
           }
-          const point = {
+          const point: DataPoint = {
             id: runner.id,
             startTime: runner.startTime!,
             time: runner.time!,
