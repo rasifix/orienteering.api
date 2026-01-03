@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var solv = require('../../services/solv-loader');
+import { Request, Response } from 'express';
+import { EventLoader } from '../types/index';
+import { buildCourseSummaries } from '../services/course-builder';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-  
-    loader(id, function(event) {
-      var result = event.categories.map(function(category) {
-        return {
-          name: category.name,
-          distance: category.distance,
-          ascent: category.ascent,
-          controls: category.controls,
-          runners: category.runners.length
-        }
-      });
-    
-      res.json(result);
-    }, function(error) {
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    loader(id, (event) => {
+      const courses = buildCourseSummaries(event.categories);
+      res.json(courses);
+
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
-};
-
+}

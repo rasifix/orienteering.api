@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var axios = require("axios");
-const localLoader = require("../services/local-loader");
-const picoEvents = require("../services/picoevents");
+import axios from "axios";
 
-function solvEvents(year) {
+interface SolvEvent {
+  ResultListID: string;
+  EventName: string;
+  EventDate: string;
+  EventMap: string;
+  EventClub: string;
+  SubTitle?: string;
+  ResultType: number;
+}
+
+interface SolvResponse {
+  ResultLists: SolvEvent[];
+}
+
+export interface Event {
+  id: string;
+  name: string;
+  subtitle?: string;
+  date: string;
+  startTime?: string;
+  map: string;
+  club: string;
+  source: string;
+  _link: string;
+}
+
+export default function solvEvents(year: number): Promise<Event[]> {
   return axios
-    .get("https://o-l.ch/cgi-bin/fixtures", {
+    .get<SolvResponse>("https://o-l.ch/cgi-bin/fixtures", {
       params: {
         mode: "results",
         year: year,
         json: 1,
       },
     })
-    .then(function (response) {
+    .then((response) => {
       if (response.status !== 200) {
-        res.status(500);
-        res.json({ error: "backend server reported a problem" });
-        return;
+        throw new Error("backend server reported a problem");
       }
 
-      var json = response.data;
+      const json = response.data;
       return json["ResultLists"]
-        .filter(function (entry) {
+        .filter((entry) => {
           return entry["EventMap"];
         })
-        .filter(function (entry) {
+        .filter((entry) => {
           return entry["ResultType"] === 0;
         })
-        .map(function (entry) {
-          var row = {
-            id: entry["ResultListID"],
+        .map((entry) => {
+          const row: Event = {
+            id: "" + entry["ResultListID"],
             name: entry["EventName"],
             date: entry["EventDate"],
             map: entry["EventMap"],
@@ -59,17 +81,3 @@ function solvEvents(year) {
         });
     });
 }
-
-module.exports = function (req, res) {
-  var year = parseInt(req.query.year) || new Date().getFullYear();
-  Promise.all([solvEvents(year), picoEvents()]).then(function (resolved) {
-    const events = [].concat(resolved[0]).concat(resolved[1]).concat(resolved[2]);
-    events.sort(function (e1, e2) {
-      return e2.date.localeCompare(e1.date);
-    });
-
-    res.set("Access-Control-Allow-Origin", "*");
-    res.set("Cache-Control", "max-age=60");
-    res.json({ events: events });
-  });
-};

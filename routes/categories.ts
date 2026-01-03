@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var parseRanking = require('../../services/ranking').parseRanking;
+import { Request, Response } from 'express';
+import { EventLoader } from '../types/index';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    var id = req.params.id;
-    var categoryId = req.params.categoryId;
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
   
-    loader(id, function(event) {      
-      var category = event.categories.find(function(category) {
-        return category.name === categoryId;
-      });
-        
-      if (!category) {
-        res.status(404);
-        res.json({ message: 'category ' + categoryId + ' does not exist!' });
-      } else {
-        res.json({
+    loader(id, (event) => {
+      const result = event.categories.map((category) => {
+        return {
           name: category.name,
           distance: category.distance,
           ascent: category.ascent,
           controls: category.controls,
-          runners: parseRanking(category).runners
-        });
-      }    
-    }, function(error) {
+          runners: category.runners.length
+        };
+      });
+    
+      res.json(result);
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
     });
   };
-};
-
+}

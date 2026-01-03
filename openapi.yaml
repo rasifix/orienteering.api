@@ -1,0 +1,800 @@
+openapi: 3.0.3
+info:
+  title: Orienteering API
+  description: |
+    REST API providing access to orienteering competition data from multiple sources:
+    - SOLV (Swiss Orienteering o-l.ch)
+    - PicoEvents (live results)
+    - Local file store
+    
+    The API aggregates and normalizes data from these sources, providing unified access
+    to event details, categories, courses, legs, controls, and runner results.
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  contact:
+    name: Simon Raess
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local development server
+  - url: https://api.zimaa.ch/api
+    description: Production server
+
+tags:
+  - name: Events
+    description: Event listing and details
+  - name: Categories
+    description: Competition categories within events
+  - name: Courses
+    description: Orienteering courses with controls
+  - name: Legs
+    description: Course segments (legs) between controls
+  - name: Controls
+    description: Control points on courses
+  - name: Runners
+    description: Competitor information and results
+
+paths:
+  /events:
+    get:
+      summary: List all events
+      description: Returns a list of all events from all data sources (SOLV, PicoEvents, local)
+      tags:
+        - Events
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventSummary'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}:
+    get:
+      summary: Get event details
+      description: Returns detailed information about a specific event from SOLV
+      tags:
+        - Events
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/categories:
+    get:
+      summary: List event categories
+      description: Returns all competition categories for the specified event
+      tags:
+        - Categories
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategorySummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/categories/{categoryId}:
+    get:
+      summary: Get category details with rankings
+      description: Returns detailed category information including ranked runners with splits and time differences
+      tags:
+        - Categories
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Category with ranked runners
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/courses:
+    get:
+      summary: List courses
+      description: Returns summary information for all courses in the event
+      tags:
+        - Courses
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/courses/{courseId}:
+    get:
+      summary: Get course details
+      description: Returns detailed information about a specific course including all controls
+      tags:
+        - Courses
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+        - $ref: '#/components/parameters/CourseId'
+      responses:
+        '200':
+          description: Course details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/legs:
+    get:
+      summary: List all legs
+      description: Returns all course legs (segments between controls) with rankings
+      tags:
+        - Legs
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: List of legs with rankings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Leg'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/legs/{legId}:
+    get:
+      summary: Get leg details
+      description: Returns detailed information for a specific leg including complete rankings and time analysis
+      tags:
+        - Legs
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+        - $ref: '#/components/parameters/LegId'
+      responses:
+        '200':
+          description: Leg details with rankings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Leg'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/controls:
+    get:
+      summary: List all controls
+      description: Returns all control points across all courses in the event
+      tags:
+        - Controls
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: List of controls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Control'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/controls/{controlId}:
+    get:
+      summary: Get control details
+      description: Returns information about a specific control including which courses use it
+      tags:
+        - Controls
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+        - $ref: '#/components/parameters/ControlId'
+      responses:
+        '200':
+          description: Control details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Control'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/runners:
+    get:
+      summary: List all runners
+      description: Returns all runners (competitors) in the event across all categories
+      tags:
+        - Runners
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: List of runners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Runner'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/{eventId}/starttime:
+    get:
+      summary: Get start times
+      description: Returns start times for all runners in the event
+      tags:
+        - Runners
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: Start time information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartTimeResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/picoevents/{eventId}:
+    get:
+      summary: Get PicoEvents event details
+      description: Returns detailed information about a specific event from PicoEvents live results
+      tags:
+        - Events
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/picoevents/{eventId}/categories:
+    get:
+      summary: List PicoEvents categories
+      description: Returns all competition categories for the specified PicoEvents event
+      tags:
+        - Categories
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategorySummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+  /events/picoevents/{eventId}/categories/{categoryId}:
+    get:
+      summary: Get PicoEvents category details
+      description: Returns detailed category information from PicoEvents including ranked runners
+      tags:
+        - Categories
+      parameters:
+        - $ref: '#/components/parameters/EventId'
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Category with ranked runners
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/Error'
+
+components:
+  parameters:
+    EventId:
+      name: eventId
+      in: path
+      required: true
+      description: Unique identifier for the event
+      schema:
+        type: string
+      example: "1a41c01b"
+
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      description: Name of the category
+      schema:
+        type: string
+      example: "H21"
+
+    CourseId:
+      name: courseId
+      in: path
+      required: true
+      description: Name of the course
+      schema:
+        type: string
+      example: "H21"
+
+    LegId:
+      name: legId
+      in: path
+      required: true
+      description: Leg identifier in format "from-to" (control codes)
+      schema:
+        type: string
+      example: "start-31"
+
+    ControlId:
+      name: controlId
+      in: path
+      required: true
+      description: Control code
+      schema:
+        type: string
+      example: "31"
+
+  schemas:
+    EventSummary:
+      type: object
+      description: Summary information about an event
+      properties:
+        id:
+          type: string
+          description: Unique event identifier
+          example: "1a41c01b"
+        name:
+          type: string
+          description: Event name
+          example: "Schweizermeisterschaft Sprint"
+        subtitle:
+          type: string
+          description: Optional subtitle or additional info
+        date:
+          type: string
+          format: date
+          description: Event date
+          example: "2025-05-15"
+        map:
+          type: string
+          description: Map name or location
+          example: "Bern"
+        club:
+          type: string
+          description: Organizing club
+          example: "OLG Bern"
+        source:
+          type: string
+          enum: [solv, picoevents, local]
+          description: Data source
+        _link:
+          type: string
+          description: API link to event details
+          example: "/api/events/1a41c01b"
+
+    Event:
+      type: object
+      description: Complete event information with all categories
+      properties:
+        id:
+          type: string
+          description: Unique event identifier
+        name:
+          type: string
+          description: Event name
+        date:
+          type: string
+          format: date
+          description: Event date
+        location:
+          type: string
+          description: Event location
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Category:
+      type: object
+      description: Competition category with runners and course info
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "H21"
+        shortName:
+          type: string
+          description: Short name for the category
+        runners:
+          type: array
+          items:
+            $ref: '#/components/schemas/Runner'
+        course:
+          $ref: '#/components/schemas/Course'
+        distance:
+          type: number
+          description: Course distance in meters
+          example: 3500
+        ascent:
+          type: number
+          description: Total ascent in meters
+          example: 120
+        controls:
+          type: number
+          description: Number of controls
+          example: 15
+
+    CategorySummary:
+      type: object
+      description: Summary of a category
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "H21"
+        shortName:
+          type: string
+          description: Short name for the category
+        distance:
+          type: number
+          description: Course distance in meters
+        ascent:
+          type: number
+          description: Total ascent in meters
+        controls:
+          type: number
+          description: Number of controls
+
+    CategoryDetail:
+      type: object
+      description: Detailed category with ranked runners
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "H21"
+        distance:
+          type: number
+          description: Course distance in meters
+        ascent:
+          type: number
+          description: Total ascent in meters
+        controls:
+          type: number
+          description: Number of controls
+        runners:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankedRunner'
+
+    Runner:
+      type: object
+      description: Competitor information
+      properties:
+        id:
+          type: string
+          description: Unique runner identifier
+        fullName:
+          type: string
+          description: Full name
+          example: "John Doe"
+        yearOfBirth:
+          type: number
+          description: Year of birth
+          example: 1990
+        city:
+          type: string
+          description: City
+          example: "Bern"
+        club:
+          type: string
+          description: Club affiliation
+          example: "OLG Bern"
+        ranking:
+          type: string
+          description: National ranking
+        time:
+          type: string
+          description: Total time (HH:MM:SS)
+          example: "00:42:15"
+        splits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Split'
+        sex:
+          type: string
+          enum: [m, f]
+          description: Gender
+        starttime:
+          type: string
+          description: Start time (HH:MM:SS)
+          example: "10:30:00"
+
+    RankedRunner:
+      allOf:
+        - $ref: '#/components/schemas/Runner'
+        - type: object
+          properties:
+            rank:
+              type: number
+              description: Position in category
+              example: 1
+            timeBehind:
+              type: string
+              description: Time behind leader
+              example: "00:00:00"
+            category:
+              type: string
+              description: Category name
+              example: "H21"
+
+    Split:
+      type: object
+      description: Split time at a control
+      properties:
+        code:
+          type: string
+          description: Control code
+          example: "31"
+        time:
+          type: string
+          description: Split time (HH:MM:SS)
+          example: "00:05:42"
+
+    Course:
+      type: object
+      description: Orienteering course with controls
+      properties:
+        name:
+          type: string
+          description: Course name
+          example: "H21"
+        length:
+          type: number
+          description: Course length in meters
+          example: 3500
+        climb:
+          type: number
+          description: Total climb in meters
+          example: 120
+        controls:
+          type: array
+          items:
+            $ref: '#/components/schemas/Control'
+
+    Leg:
+      type: object
+      description: Course segment between two controls
+      properties:
+        id:
+          type: string
+          description: Leg identifier (from-to)
+          example: "start-31"
+        from:
+          type: string
+          description: Starting control code
+          example: "start"
+        to:
+          type: string
+          description: Ending control code
+          example: "31"
+        categories:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: Map of categories that include this leg
+        runners:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegRunner'
+        errorFrequency:
+          type: number
+          description: Frequency of errors on this leg (0-1)
+          example: 0.15
+
+    LegRunner:
+      type: object
+      description: Runner's performance on a specific leg
+      properties:
+        id:
+          type: string
+          description: Runner identifier
+        fullName:
+          type: string
+          description: Full name
+        yearOfBirth:
+          type: number
+          description: Year of birth
+        city:
+          type: string
+          description: City
+        club:
+          type: string
+          description: Club affiliation
+        split:
+          type: string
+          description: Time for this leg (HH:MM:SS)
+          example: "00:05:42"
+        splitBehind:
+          type: string
+          description: Time behind best split
+          example: "00:00:15"
+        splitRank:
+          type: number
+          description: Rank on this leg
+          example: 5
+        category:
+          type: string
+          description: Category name
+        timeLoss:
+          type: string
+          description: Time lost compared to expected pace
+          example: "00:00:30"
+
+    StartTimeResponse:
+      type: object
+      description: Start time data for all categories in an event
+      required:
+        - categories
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/StartTimeCategory'
+
+    StartTimeCategory:
+      type: object
+      description: Start time data for a specific category
+      required:
+        - name
+        - runners
+      properties:
+        name:
+          type: string
+          description: Category name
+          example: "H21E"
+        runners:
+          type: array
+          items:
+            $ref: '#/components/schemas/StartTimeRunner'
+
+    StartTimeRunner:
+      type: object
+      description: Runner's start time and result information
+      required:
+        - id
+        - startTime
+        - time
+        - rank
+        - fullName
+      properties:
+        id:
+          type: string
+          description: Runner identifier
+          example: "12345"
+        startTime:
+          type: string
+          description: Start time (HH:MM:SS)
+          example: "10:30:00"
+        time:
+          type: string
+          description: Total time (HH:MM:SS)
+          example: "01:15:42"
+        rank:
+          type: number
+          description: Rank in category
+          example: 5
+        fullName:
+          type: string
+          description: Full name of runner
+          example: "John Doe"
+        sex:
+          type: string
+          description: Gender
+          example: "M"
+        category:
+          type: string
+          description: Category name
+          example: "H21E"
+
+    ApiError:
+      type: object
+      description: Error response
+      required:
+        - statusCode
+        - message
+      properties:
+        statusCode:
+          type: number
+          description: HTTP status code
+          example: 404
+        message:
+          type: string
+          description: Error message
+          example: "Event not found"
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            statusCode: 404
+            message: "Resource not found"
+
+    Error:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            statusCode: 500
+            message: "Internal server error"

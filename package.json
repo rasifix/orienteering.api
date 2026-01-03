@@ -2,9 +2,15 @@
   "name": "ol.api",
   "version": "0.0.0",
   "description": "OL API Server",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "make test"
+    "build": "tsc",
+    "dev": "tsx index.ts",
+    "start": "node dist/index.js",
+    "test": "make test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [
     "orienteering",
@@ -14,20 +20,31 @@
   "author": "Simon Räss",
   "license": "Apache-2.0",
   "dependencies": {
-    "@rasifix/orienteering-utils": "^1.0.3",
+    "@rasifix/orienteering-utils": "^2.0.40",
     "axios": "^1.12.2",
-    "basic-auth": "~1.0.3",
-    "body-parser": "^1.18.3",
     "compression": "^1.7.3",
     "express": "^4.21.2",
-    "iconv": "^3.0.0",
-    "sanitize-filename": "~1.5.3"
+    "express-rate-limit": "^8.2.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.6",
+    "@types/express-rate-limit": "^5.1.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.0.3",
+    "@types/sanitize-filename": "^1.1.28",
+    "@types/should": "^11.2.0",
+    "@types/supertest": "^6.0.3",
     "axios-mock-adapter": "^2.1.0",
+    "eslint": "^9.39.2",
     "mocha": "^11.7.4",
     "nock": "^14.0.10",
     "should": "~7.0.2",
-    "supertest": "^3.3.0"
+    "supertest": "^3.3.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0"
   }
 }

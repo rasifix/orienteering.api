@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Request, Response } from 'express';
+import { EventLoader } from '../types/index';
+import { buildLegs } from '../services/leg-builder';
 
-module.exports = function(loader) {
-  return function(req, res) {
-    console.log("getting event " + req.params.id);
-    loader(req.params.id, function(event) {
-      res.json(event);
-    }, function(error) {
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    loader(id, (event) => {
+      const legs = buildLegs(event.categories);
+      res.json(legs);
+    }, (error) => {
       res.status(error.statusCode);
       res.json(error);
-    });  
-  }
-};
+    });
+  };
+}

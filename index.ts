@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var fs = require("fs");
+import app from './app';
+import { AddressInfo } from 'net';
 
-var sanitize = require("sanitize-filename");
+const server = app.listen(8080, () => {
+  const address = server.address() as AddressInfo;
+  const host = address.address;
+  const port = address.port;
 
-module.exports = function(req, res) {
-  var id = req.params.id;
-  var file = sanitize(id);
-  
-  res.set('Access-Control-Allow-Origin', '*');
-  
-  var path = 'data/' + file + '.json';
-    
-  fs.readFile(path, { encoding: 'UTF8' }, function(err, data) {
-    if (err) {
-      res.status(404);
-      res.json({ message: 'event ' + id + ' does not exist!' });
-    } else {
-      res.set('Content-Type', 'text/plain;charset=utf8');
-      res.send(data);
-    }
-  });  
-};
+  console.log('orienteering API server listening at http://%s:%s', host, port);
+});

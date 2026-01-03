@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Simon Raess
+ * Copyright 2015-2026 Simon Raess
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var app = require('./app');
+import { Request, Response } from 'express';
+import { EventLoader } from '../types/index';
+import { defineControls } from '../services/control-builder';
 
-var server = app.listen(8080, function() {
-  var host = server.address().address;
-  var port = server.address().port;
-
-  console.log('orienteering API server listening at http://%s:%s', host, port);
-});
+export default function(loader: EventLoader) {
+  return (req: Request, res: Response) => {
+    const id = req.params.id;
+    loader(id, (event) => {
+      const legs = defineControls(event.categories);
+      res.json(legs);
+    }, (error) => {
+      res.status(error.statusCode);
+      res.json(error);
+    });
+  };
+}
