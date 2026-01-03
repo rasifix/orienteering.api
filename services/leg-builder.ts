@@ -94,7 +94,7 @@ export function buildDetailedLegs(categories: Category[]) {
             runners: []
           };
         }
-        if (isValid(time) && (lastTime == null || isValid(lastTime))) {
+        if (isValid(time) && (lastTime === null || isValid(lastTime))) {
           const splitTime = lastTime !== null 
             ? (parseTime(time) ?? 0) - (parseTime(lastTime) ?? 0) 
             : (parseTime(time) ?? 0);
