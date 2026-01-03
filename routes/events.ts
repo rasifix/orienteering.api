@@ -28,5 +28,11 @@ export default function (req: Request, res: Response) {
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Cache-Control", "max-age=60");
     res.json({ events: events });
+  }).catch((error) => {
+    res.status(500);
+    res.json({
+      statusCode: 500,
+      message: error.message || 'Failed to load events'
+    });
   });
 }

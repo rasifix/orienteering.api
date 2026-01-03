@@ -97,6 +97,11 @@ const solvLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCa
       
       callback(competition);
     });
+  }).catch((error) => {
+    errorCallback({
+      statusCode: error.response?.status || 500,
+      message: error.message || 'Failed to load event from SOLV'
+    });
   });
 };
 

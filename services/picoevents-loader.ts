@@ -62,6 +62,12 @@ const loadLiveEvents = (id: string, callback: LoaderCallback, errorCallback: Err
           return;
         }
         callback(parseCsv(response.data.toString("latin1")));
+      })
+      .catch((error) => {
+        errorCallback({
+          statusCode: error.response?.status || 500,
+          message: error.message || 'Failed to load event from PicoEvents'
+        });
       });
   });
 };
