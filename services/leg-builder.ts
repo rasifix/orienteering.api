@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { formatTime, ranking, parseTime } from '@rasifix/orienteering-utils';
-import { Category, Runner } from '../types/index.ts';
+import { Category, Runner } from '../types/index';
 import { RankingRunner } from '@rasifix/orienteering-utils/lib/utils/ranking';
 
 export interface Leg {

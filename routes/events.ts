@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import { Request, Response } from "express";
-import solvEvents, { Event } from "../services/solv-events.ts";
-import picoEvents from "../services/picoevents.ts";
+import solvEvents, { Event } from "../services/solv-events";
+import picoEvents from "../services/picoevents";
 
 export default function (req: Request, res: Response) {
   const year = parseInt(req.query.year as string) || new Date().getFullYear();

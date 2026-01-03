@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import { Request, Response } from 'express';
-import { EventLoader } from '../types/index.ts';
-import { defineControls } from '../services/control-builder.ts';
+import { EventLoader } from '../types/index';
+import { defineControls } from '../services/control-builder';
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {

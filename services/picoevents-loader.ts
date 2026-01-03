@@ -16,8 +16,8 @@
 import axios from 'axios';
 import { formats } from '@rasifix/orienteering-utils';
 import { Competition } from '@rasifix/orienteering-utils/lib/model/competition';
-import picoEvents from './picoevents.ts';
-import { LoaderCallback, ErrorCallback } from '../types/index.ts';
+import picoEvents from './picoevents';
+import { LoaderCallback, ErrorCallback } from '../types/index';
 
 function parseCsv(body: string): Competition {
   const parser = new formats.picoevents.PicoeventsFormat();

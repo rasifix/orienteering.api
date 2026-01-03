@@ -16,8 +16,8 @@
 import express, { Request, Response, NextFunction, Application } from 'express';
 import compress from 'compression';
 
-import solv from './services/solv-loader.ts';
-import * as picoevents from './services/picoevents-loader.ts';
+import solv from './services/solv-loader';
+import * as picoevents from './services/picoevents-loader';
 
 const app: Application = express();
 app.use(compress());

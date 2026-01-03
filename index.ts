@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import app from './app.ts';
+import app from './app';
 import { AddressInfo } from 'net';
 
 const server = app.listen(8080, () => {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import { Request, Response } from 'express';
-import { EventLoader } from '../types/index.ts';
-import { buildCourseSummaries } from '../services/course-builder.ts';
+import { EventLoader } from '../types/index';
+import { buildCourseSummaries } from '../services/course-builder';
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {
@@ -23,7 +23,7 @@ export default function(loader: EventLoader) {
     loader(id, (event) => {
       const courses = buildCourseSummaries(event.categories);
       res.json(courses);
-      
+
     }, (error) => {
       res.status(error.statusCode);
       res.json(error);

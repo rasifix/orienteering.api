@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import { Request, Response } from 'express';
-import { parseTime } from '../services/time.ts';
-import { EventLoader } from '../types/index.ts';
-import categories from './categories.ts';
+import { parseTime } from '../services/time';
+import { EventLoader } from '../types/index';
+import categories from './categories';
 
 // Regex to validate time format (e.g., 12:25 or 1:25:13)
 const TIME_FORMAT_REGEX = /^\d{1,2}:\d{1,2}(:\d{2})?$/;

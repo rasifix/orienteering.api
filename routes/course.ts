@@ -15,8 +15,8 @@
  */
 import { Request, Response } from "express";
 import { ranking } from "@rasifix/orienteering-utils";
-import { EventLoader } from "../types/index.ts";
-import { buildCourseDetails } from "../services/course-builder.ts";
+import { EventLoader } from "../types/index";
+import { buildCourseDetails } from "../services/course-builder";
 
 export default function (loader: EventLoader) {
   return (req: Request, res: Response) => {

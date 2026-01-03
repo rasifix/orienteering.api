@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { parseTime } from '@rasifix/orienteering-utils';
-import { Category } from '../types/index.ts';
+import { Category } from '../types/index';
 import { Runner } from '@rasifix/orienteering-utils/lib/model/runner';
 
 export interface CourseBase {
