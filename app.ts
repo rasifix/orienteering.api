@@ -15,6 +15,7 @@
  */
 import express, { Request, Response, NextFunction, Application } from 'express';
 import compress from 'compression';
+import rateLimit from 'express-rate-limit';
 
 import solv from './services/solv-loader';
 import * as picoevents from './services/picoevents-loader';
@@ -22,12 +23,39 @@ import * as picoevents from './services/picoevents-loader';
 const app: Application = express();
 app.use(compress());
 
+// Rate limiting - prevent abuse and DoS attacks
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api/', limiter);
+
+// CORS - Allow all origins for this public API
+// Note: This is intentional as this is a public orienteering results API
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   res.header("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
   next();
 });
+
+// Request parameter validation middleware
+const validateId = (req: Request, res: Response, next: NextFunction) => {
+  const id = req.params.id || req.params.categoryId || req.params.courseId || req.params.legId || req.params.controlId;
+  if (id) {
+    // Only allow alphanumeric characters and hyphens/underscores (safe for external API calls)
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+      res.status(400);
+      res.json({ statusCode: 400, message: 'Invalid ID format' });
+      return;
+    }
+  }
+  next();
+};
+app.use('/api/events/:id*', validateId);
 
 // Cache middleware for GET requests - 1 day TTL
 const cacheMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -89,10 +117,18 @@ app.get('/*', (req: Request, res: Response) => {
 });
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  // Log full error for debugging
+  console.error('Server error:', err);
+  
   res.status(500);
-  console.log('got a nasty error');
-  console.log(err);
-  res.json({ error: err });
+  
+  // In production, don't expose internal error details
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  res.json({
+    statusCode: 500,
+    message: 'Internal server error',
+    ...(isDevelopment && { error: err.message, stack: err.stack })
+  });
 });
 
 export default app;
