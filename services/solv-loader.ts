@@ -26,7 +26,6 @@ const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 const getEventMetadata = (id: string, callback: (event: Event | null) => void): void => {
   const currentYear = new Date().getFullYear();
   const years = [currentYear, currentYear - 1, currentYear + 1]; // Check current, previous, and next year
-  console.log("looking for SOLV event metadata for id " + id);
   const checkYear = (yearIndex: number): void => {
     if (yearIndex >= years.length) {
       callback(null);

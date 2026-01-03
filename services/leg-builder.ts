@@ -61,7 +61,7 @@ export function buildLegs(categories: Category[]): LegSummary[] {
   }));
 }
 
-export function buildDetailedLegs(categories: Category[]): Leg[] {
+export function buildDetailedLegs(categories: Category[]) {
   const createRankingEntry = (runner: Runner, category: string, splitTime: number): LegRunner => {
     return {
       id: runner.id,
@@ -173,7 +173,14 @@ export function buildDetailedLegs(categories: Category[]): Leg[] {
     return l2.errorFrequency - l1.errorFrequency;
   });
   
-  return result;
+  return result.map((leg) => ({
+    id: leg.id,
+    from: leg.from,
+    to: leg.to,
+    categories: Object.keys(leg.categories),
+    runners: leg.runners,
+    errorFrequency: leg.errorFrequency
+  }));
 }
 
 function isValid(value: string): boolean {

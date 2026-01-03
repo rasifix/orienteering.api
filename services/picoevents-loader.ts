@@ -20,7 +20,6 @@ import picoEvents from './picoevents.ts';
 import { LoaderCallback, ErrorCallback } from '../types/index.ts';
 
 function parseCsv(body: string): Competition {
-  // Use library's OwareFormat parser (PicoEvents uses Oware format)
   const parser = new formats.picoevents.PicoeventsFormat();
   return parser.parse(body);
 }

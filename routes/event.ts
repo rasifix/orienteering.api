@@ -18,7 +18,6 @@ import { EventLoader } from '../types/index.ts';
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {
-    console.log("getting event " + req.params.id);
     loader(req.params.id, (event) => {
       res.json(event);
     }, (error) => {
