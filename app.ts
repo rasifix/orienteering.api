@@ -17,8 +17,8 @@ import express, { Request, Response, NextFunction, Application } from 'express';
 import compress from 'compression';
 import rateLimit from 'express-rate-limit';
 
-import solv from './services/solv-loader';
-import * as picoevents from './services/picoevents-loader';
+import solv from './services/solv-loader.js';
+import * as picoevents from './services/picoevents-loader.js';
 
 const app: Application = express();
 app.use(compress());
@@ -68,46 +68,46 @@ const cacheMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
 app.use('/api/events', cacheMiddleware);
 
-app.get('/api/events', (await import('./routes/events')).default);
+app.get('/api/events', (await import('./routes/events.js')).default);
 
 // solv
-app.get('/api/events/:id', (await import('./routes/event')).default(solv));
-app.get('/api/events/:id/categories', (await import('./routes/categories')).default(solv));
-app.get('/api/events/:id/categories/:categoryId', (await import('./routes/category')).default(solv));
-app.get('/api/events/:id/courses', (await import('./routes/courses')).default(solv));
-app.get('/api/events/:id/courses/:courseId', (await import('./routes/course')).default(solv));
-app.get('/api/events/:id/legs', (await import('./routes/legs')).default(solv));
-app.get('/api/events/:id/legs/:legId', (await import('./routes/leg')).default(solv));
-app.get('/api/events/:id/controls', (await import('./routes/controls')).default(solv));
-app.get('/api/events/:id/controls/:controlId', (await import('./routes/control')).default(solv));
-app.get('/api/events/:id/runners', (await import('./routes/runners')).default(solv));
-app.get('/api/events/:id/starttime', (await import('./routes/starttime')).default(solv));
+app.get('/api/events/:id', (await import('./routes/event.js')).default(solv));
+app.get('/api/events/:id/categories', (await import('./routes/categories.js')).default(solv));
+app.get('/api/events/:id/categories/:categoryId', (await import('./routes/category.js')).default(solv));
+app.get('/api/events/:id/courses', (await import('./routes/courses.js')).default(solv));
+app.get('/api/events/:id/courses/:courseId', (await import('./routes/course.js')).default(solv));
+app.get('/api/events/:id/legs', (await import('./routes/legs.js')).default(solv));
+app.get('/api/events/:id/legs/:legId', (await import('./routes/leg.js')).default(solv));
+app.get('/api/events/:id/controls', (await import('./routes/controls.js')).default(solv));
+app.get('/api/events/:id/controls/:controlId', (await import('./routes/control.js')).default(solv));
+app.get('/api/events/:id/runners', (await import('./routes/runners.js')).default(solv));
+app.get('/api/events/:id/starttime', (await import('./routes/starttime.js')).default(solv));
 
 // solv
-app.get('/api/events/solv/:id', (await import('./routes/event')).default(solv));
-app.get('/api/events/solv/:id/categories', (await import('./routes/categories')).default(solv));
-app.get('/api/events/solv/:id/categories/:categoryId', (await import('./routes/category')).default(solv));
-app.get('/api/events/solv/:id/courses', (await import('./routes/courses')).default(solv));
-app.get('/api/events/solv/:id/courses/:courseId', (await import('./routes/course')).default(solv));
-app.get('/api/events/solv/:id/legs', (await import('./routes/legs')).default(solv));
-app.get('/api/events/solv/:id/legs/:legId', (await import('./routes/leg')).default(solv));
-app.get('/api/events/solv/:id/controls', (await import('./routes/controls')).default(solv));
-app.get('/api/events/solv/:id/controls/:controlId', (await import('./routes/control')).default(solv));
-app.get('/api/events/solv/:id/runners', (await import('./routes/runners')).default(solv));
-app.get('/api/events/solv/:id/starttime', (await import('./routes/starttime')).default(solv));
+app.get('/api/events/solv/:id', (await import('./routes/event.js')).default(solv));
+app.get('/api/events/solv/:id/categories', (await import('./routes/categories.js')).default(solv));
+app.get('/api/events/solv/:id/categories/:categoryId', (await import('./routes/category.js')).default(solv));
+app.get('/api/events/solv/:id/courses', (await import('./routes/courses.js')).default(solv));
+app.get('/api/events/solv/:id/courses/:courseId', (await import('./routes/course.js')).default(solv));
+app.get('/api/events/solv/:id/legs', (await import('./routes/legs.js')).default(solv));
+app.get('/api/events/solv/:id/legs/:legId', (await import('./routes/leg.js')).default(solv));
+app.get('/api/events/solv/:id/controls', (await import('./routes/controls.js')).default(solv));
+app.get('/api/events/solv/:id/controls/:controlId', (await import('./routes/control.js')).default(solv));
+app.get('/api/events/solv/:id/runners', (await import('./routes/runners.js')).default(solv));
+app.get('/api/events/solv/:id/starttime', (await import('./routes/starttime.js')).default(solv));
 
 // picoevents
-app.get('/api/events/picoevents/:id', (await import('./routes/event')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/categories', (await import('./routes/categories')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/categories/:categoryId', (await import('./routes/category')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/courses', (await import('./routes/courses')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/courses/:courseId', (await import('./routes/course')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/legs', (await import('./routes/legs')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/legs/:legId', (await import('./routes/leg')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/controls', (await import('./routes/controls')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/controls/:controlId', (await import('./routes/control')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/runners', (await import('./routes/runners')).default(picoevents.loadLiveEvents));
-app.get('/api/events/picoevents/:id/starttime', (await import('./routes/starttime')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id', (await import('./routes/event.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/categories', (await import('./routes/categories.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/categories/:categoryId', (await import('./routes/category.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/courses', (await import('./routes/courses.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/courses/:courseId', (await import('./routes/course.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/legs', (await import('./routes/legs.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/legs/:legId', (await import('./routes/leg.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/controls', (await import('./routes/controls.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/controls/:controlId', (await import('./routes/control.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/runners', (await import('./routes/runners.js')).default(picoevents.loadLiveEvents));
+app.get('/api/events/picoevents/:id/starttime', (await import('./routes/starttime.js')).default(picoevents.loadLiveEvents));
 
 
 // fallback route -> send to entry point

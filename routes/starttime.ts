@@ -15,7 +15,7 @@
  */
 import { Request, Response } from 'express';
 import { parseTime } from '@rasifix/orienteering-utils';
-import { EventLoader } from '../types/index';
+import { EventLoader } from '../types/index.js';
 import { Sex } from '@rasifix/orienteering-utils/lib/model';
 
 // Regex to validate time format (e.g., 12:25 or 1:25:13)

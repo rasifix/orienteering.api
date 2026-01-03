@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { ranking, formatTime, parseTime } from '@rasifix/orienteering-utils';
-import { Category, Runner } from '../types/index';
+import { Category, Runner } from '../types/index.js';
 import { Split } from '@rasifix/orienteering-utils/lib/model/split';
 
 // Shared helper to format runners for ranking calculation

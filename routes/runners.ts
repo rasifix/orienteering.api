@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Request, Response } from 'express';
-import { EventLoader, Category } from '../types/index';
+import { EventLoader, Category } from '../types/index.js';
 
 export default function(loader: EventLoader) {
   return (req: Request, res: Response) => {

@@ -15,8 +15,8 @@
  */
 import axios from 'axios';
 import { formats } from '@rasifix/orienteering-utils';
-import { LoaderCallback, ErrorCallback } from '../types/index';
-import solvEvents, { Event } from './solv-events';
+import { LoaderCallback, ErrorCallback } from '../types/index.js';
+import solvEvents, { Event } from './solv-events.js';
 
 // Cache for SOLV events metadata
 const eventsCache: { [year: number]: Event[] } = {};
