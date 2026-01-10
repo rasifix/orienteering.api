@@ -22,6 +22,7 @@ interface PicoEvent {
   map: string;
   organizer: string;
   laststart: string;
+  test: number;
 }
 
 interface PicoEventsResponse {
@@ -40,8 +41,14 @@ interface EventSummary {
 }
 
 export default function picoEvents(year: number | null): Promise<EventSummary[]> {
+  if (year !== null && year < 2023) {
+    return Promise.resolve([]);
+  }
+  const url = year === 2024 || year === 2023 ? 
+    "https://results.picoevents.ch/JAHR" + (year - 2000) + "api/liveevents.php" :
+    "https://results.picoevents.ch/api/liveevents.php";
   return axios
-    .get<PicoEventsResponse>("https://results.picoevents.ch/api/liveevents.php")
+    .get<PicoEventsResponse>(url)
     .then((response) => {
       if (response.status !== 200) {
         throw new Error('backend server reported a problem');
@@ -49,7 +56,7 @@ export default function picoEvents(year: number | null): Promise<EventSummary[]>
 
       const json = response.data;
 
-      return json.liveevents.map((entry) => {
+      return json.liveevents.filter((entry) => entry.test !== 1).map((entry) => {
         return {
           id: entry.folder,
           name: entry.name,
