@@ -45,7 +45,7 @@ export default function picoEvents(year: number | null): Promise<EventSummary[]>
     return Promise.resolve([]);
   }
   const url = year === 2024 || year === 2023 ? 
-    "https://results.picoevents.ch/JAHR" + (year - 2000) + "api/liveevents.php" :
+    "https://results.picoevents.ch/JAHR" + (year - 2000) + "/api/liveevents.php" :
     "https://results.picoevents.ch/api/liveevents.php";
   return axios
     .get<PicoEventsResponse>(url)
