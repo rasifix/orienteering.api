@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import axios from 'axios';
+import e from 'express';
 
 interface PicoEvent {
   folder: string;
@@ -55,7 +56,6 @@ export default function picoEvents(year: number | null): Promise<EventSummary[]>
       }
 
       const json = response.data;
-
       return json.liveevents.filter((entry) => entry.test !== 1).map((entry) => {
         return {
           id: entry.folder,

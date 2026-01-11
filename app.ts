@@ -58,15 +58,15 @@ const validateId = (req: Request, res: Response, next: NextFunction) => {
 app.use('/api/events/:id*', validateId);
 
 // Cache middleware for GET requests - 1 day TTL
-const cacheMiddleware = (req: Request, res: Response, next: NextFunction) => {
+/*const cacheMiddleware = (req: Request, res: Response, next: NextFunction) => {
   if (req.method === 'GET') {
     const oneDayInSeconds = 86400; // 24 * 60 * 60
     res.set('Cache-Control', 'public, max-age=' + oneDayInSeconds);
   }
   next();
-};
+};*/
 
-app.use('/api/events', cacheMiddleware);
+//app.use('/api/events', cacheMiddleware);
 
 app.get('/api/events', (await import('./routes/events.js')).default);
 
