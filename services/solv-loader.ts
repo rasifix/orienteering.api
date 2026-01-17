@@ -25,7 +25,7 @@ const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 const getEventMetadata = (id: string, callback: (event: Event | null) => void): void => {
   const currentYear = new Date().getFullYear();
-  const years = [currentYear, currentYear - 1];
+  const years = [currentYear, currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4, currentYear - 5];
   const checkYear = (yearIndex: number): void => {
     if (yearIndex >= years.length) {
       callback(null);
