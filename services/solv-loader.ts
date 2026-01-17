@@ -25,7 +25,7 @@ const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 const getEventMetadata = (id: string, callback: (event: Event | null) => void): void => {
   const currentYear = new Date().getFullYear();
-  const years = [currentYear, currentYear - 1, currentYear + 1]; // Check current, previous, and next year
+  const years = [currentYear, currentYear - 1];
   const checkYear = (yearIndex: number): void => {
     if (yearIndex >= years.length) {
       callback(null);
@@ -48,6 +48,9 @@ const getEventMetadata = (id: string, callback: (event: Event | null) => void): 
     
     // Fetch events for this year
     solvEvents(year).then((events) => {
+      console.log("fetched and cached SOLV events for year " + year);
+
+      // update cache
       eventsCache[year] = events;
       lastCacheUpdate[year] = now;
       
@@ -93,6 +96,8 @@ const solvLoader = (id: string, callback: LoaderCallback, errorCallback: ErrorCa
         competition.date = eventMetadata.date;
         competition.startTime = eventMetadata.startTime;
         competition.map = eventMetadata.map;
+      } else {
+        console.warn("could not find metadata for solv event with id " + id);
       }
       
       callback(competition);
