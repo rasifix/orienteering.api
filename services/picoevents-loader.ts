@@ -16,7 +16,7 @@
 import axios from 'axios';
 import { formats } from '@rasifix/orienteering-utils';
 import { Competition } from '@rasifix/orienteering-utils/lib/model/competition';
-import picoEvents from './picoevents.js';
+import { picoEvent } from './picoevents.js';
 import { LoaderCallback, ErrorCallback } from '../types/index.js';
 
 function parseCsv(body: string): Competition {
@@ -25,13 +25,9 @@ function parseCsv(body: string): Competition {
 }
 
 const loadLiveEvents = (id: string, callback: LoaderCallback, errorCallback: ErrorCallback): void => {
-  picoEvents(null).then((events) => {
-    const event = events.find((ev) => {
-      return ev.id == id;
-    });
+  picoEvent(id).then((event) => {
     if (!event) {
       console.error("event with id " + id + " does not exist");
-      console.log("the following events exist", events.map(e => e.id));
       errorCallback({
         statusCode: 404,
         message: "event with id " + id + " does not exist",
@@ -48,7 +44,7 @@ const loadLiveEvents = (id: string, callback: LoaderCallback, errorCallback: Err
     }
 
     axios
-      .get("https://results.picoevents.ch/" + id + "/results.csv", {
+      .get(event.url!, {
         responseType: "arraybuffer",
         responseEncoding: "binary",
       })

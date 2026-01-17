@@ -38,18 +38,19 @@ interface EventSummary {
   club: string;
   laststart: string;
   source: string;
+  url?: string;
   _link: string;
 }
 
-export default function picoEvents(year: number | null): Promise<EventSummary[]> {
+export default function picoEvents(year: number | null, id?: string): Promise<EventSummary[]> {
   if (year !== null && year < 2023) {
     return Promise.resolve([]);
   }
   const url = year === 2024 || year === 2023 ? 
-    "https://results.picoevents.ch/JAHR" + (year - 2000) + "/api/liveevents.php" :
-    "https://results.picoevents.ch/api/liveevents.php";
+    "https://results.picoevents.ch/JAHR" + (year - 2000) :
+    "https://results.picoevents.ch";
   return axios
-    .get<PicoEventsResponse>(url)
+    .get<PicoEventsResponse>(url + "/api/liveevents.php")
     .then((response) => {
       if (response.status !== 200) {
         throw new Error('backend server reported a problem');
@@ -65,6 +66,7 @@ export default function picoEvents(year: number | null): Promise<EventSummary[]>
           club: entry.organizer,
           laststart: entry.laststart,
           source: "picoevents",
+          url: url + "/" + entry.folder + "/results.csv",
           _link: "http://ol.zimaa.ch/api/events/picoevents/" + entry.folder,
         };
       }).filter((event) => {
@@ -72,3 +74,46 @@ export default function picoEvents(year: number | null): Promise<EventSummary[]>
       });
     });
 }
+
+const cache = new Map<string, EventSummary>();
+
+export async function picoEvent(id: string): Promise<EventSummary | undefined> {
+  if (cache.has(id)) {
+    return cache.get(id);
+  }
+
+  const urls = [
+    "https://results.picoevents.ch",
+    "https://results.picoevents.ch/JAHR23",
+    "https://results.picoevents.ch/JAHR24"
+  ];
+
+  // loop through urls until we find the event with the given id
+  for (const url of urls) {
+    try {
+      const response = await axios.get<PicoEventsResponse>(url + "/api/liveevents.php");
+      const json = response.data;
+      const event = json.liveevents.filter((entry) => entry.test !== 1).map((entry) => {
+        return {
+          id: entry.folder,
+          name: entry.name,
+          date: entry.date,
+          map: entry.map,
+          club: entry.organizer,
+          laststart: entry.laststart,
+          source: "picoevents",
+          url: url + "/" + entry.folder + "/results.csv",
+          _link: "http://ol.zimaa.ch/api/events/picoevents/" + entry.folder,
+        };
+      }).find((event) => event.id === id);
+      if (event) {
+        cache.set(id, event);
+        return event;
+      }
+    } catch (error) {
+      // continue to next url
+    }
+  }
+  return undefined;
+}
+
