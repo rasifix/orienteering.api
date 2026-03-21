@@ -54,7 +54,7 @@ const getEventMetadata = (id: string, callback: (event: Event | null) => void): 
       eventsCache[year] = events;
       lastCacheUpdate[year] = now;
       
-      const event = events.find(e => e.id === id);
+      const event = events.find(e => "" + e.id === id);
       if (event) {
         callback(event);
       } else {
