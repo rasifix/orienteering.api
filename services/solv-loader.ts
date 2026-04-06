@@ -21,7 +21,7 @@ import solvEvents, { Event } from './solv-events.js';
 // Cache for SOLV events metadata
 const eventsCache: { [year: number]: Event[] } = {};
 let lastCacheUpdate: { [year: number]: number } = {};
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 const getEventMetadata = (id: string, callback: (event: Event | null) => void): void => {
   const currentYear = new Date().getFullYear();
